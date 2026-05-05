@@ -1,0 +1,1381 @@
+<!DOCTYPE html>
+<html lang="ru" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="theme-color" content="#0a0a14">
+    <title>Habitica✨</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-primary: #0a0a14; --bg-secondary: #121224;
+            --bg-card: rgba(30,30,60,0.6); --bg-card-hover: rgba(45,45,85,0.8);
+            --glass-border: rgba(255,255,255,0.1);
+            --accent: #ff2a6d; --accent-2: #9d50ff; --accent-3: #00f5a0;
+            --accent-glow: rgba(255,42,109,0.5);
+            --green: #00f5a0; --gold: #ffd166; --blue: #6ec1ff;
+            --purple: #b794f4; --red: #ff6b6b; --pink: #ff8fab;
+            --text-primary: #ffffff; --text-secondary: #b8b8d9; --text-muted: #6b6b8a;
+            --border: rgba(255,255,255,0.08);
+            --radius: 20px; --radius-sm: 14px; --radius-xs: 10px;
+            --shadow: 0 10px 40px rgba(0,0,0,0.4);
+            --shadow-glow: 0 0 30px var(--accent-glow);
+            --gradient-1: linear-gradient(135deg, #ff2a6d, #9d50ff);
+            --gradient-2: linear-gradient(135deg, #00f5a0, #6ec1ff);
+            --gradient-3: linear-gradient(135deg, #ffd166, #ff8fab);
+            --gradient-animated: linear-gradient(-45deg, #ff2a6d, #9d50ff, #00f5a0, #6ec1ff);
+            --safe-bottom: env(safe-area-inset-bottom, 0px);
+            --safe-top: env(safe-area-inset-top, 0px);
+            --safe-left: env(safe-area-inset-left, 0px);
+            --safe-right: env(safe-area-inset-right, 0px);
+            --nav-height: 64px;
+            --touch-target: 44px;
+        }
+        [data-theme="light"] {
+            --bg-primary: #f8f9ff; --bg-secondary: #ffffff;
+            --bg-card: rgba(255,255,255,0.85); --bg-card-hover: rgba(240,242,255,0.95);
+            --glass-border: rgba(0,0,0,0.08);
+            --accent: #e11d48; --accent-2: #7c3aed; --accent-3: #059669;
+            --accent-glow: rgba(225,29,72,0.3);
+            --green: #10b981; --gold: #f59e0b; --blue: #3b82f6;
+            --purple: #8b5cf6; --red: #ef4444; --pink: #ec4899;
+            --text-primary: #0f172a; --text-secondary: #475569; --text-muted: #94a3b8;
+            --border: rgba(0,0,0,0.1); --shadow: 0 10px 40px rgba(0,0,0,0.1);
+            --shadow-glow: 0 0 30px rgba(225,29,72,0.2);
+        }
+        
+        /* Базовые настройки */
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        html { scroll-behavior: smooth; }
+        body {
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            background: var(--bg-primary); color: var(--text-primary);
+            min-height: 100vh; min-height: 100dvh;
+            overflow-x: hidden; transition: background 0.4s ease, color 0.4s ease;
+            position: relative;
+            /* Улучшенная типографика */
+            font-size: clamp(14px, 0.875rem + 0.2vw, 16px);
+            line-height: 1.5;
+            -webkit-text-size-adjust: 100%;
+        }
+        
+        /* Поддержка reduced motion */
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+                scroll-behavior: auto !important;
+            }
+        }
+        
+        body::before {
+            content: ''; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: radial-gradient(ellipse at 20% 80%, rgba(157,80,255,0.15) 0%, transparent 50%),
+                        radial-gradient(ellipse at 80% 20%, rgba(255,42,109,0.12) 0%, transparent 50%),
+                        radial-gradient(ellipse at 50% 50%, rgba(0,245,160,0.08) 0%, transparent 60%);
+            z-index: -2; animation: bgPulse 8s ease-in-out infinite; pointer-events: none;
+        }
+        @keyframes bgPulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.8;transform:scale(1.02)} }
+        .orb { position: fixed; border-radius: 50%; filter: blur(50px); z-index: -1; animation: float 20s infinite ease-in-out; opacity: 0.4; pointer-events: none; }
+        .orb-1 { width: 300px; height: 300px; background: var(--accent); top: -100px; right: -100px; }
+        .orb-2 { width: 250px; height: 250px; background: var(--accent-2); bottom: -50px; left: -80px; animation-delay: -5s; }
+        @keyframes float { 0%,100%{transform:translate(0,0) scale(1)} 50%{transform:translate(15px,-15px) scale(1.05)} }
+        .glass { 
+            background: var(--bg-card); 
+            backdrop-filter: blur(20px); 
+            -webkit-backdrop-filter: blur(20px); 
+            border: 1px solid var(--glass-border); 
+            box-shadow: var(--shadow);
+            /* Оптимизация рендеринга */
+            will-change: transform, opacity;
+            content-visibility: auto;
+            contain-intrinsic-size: 300px;
+        }
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: linear-gradient(var(--accent), var(--accent-2)); border-radius: 4px; }
+
+        .app { 
+            position: relative; z-index: 1; 
+            max-width: 1400px; margin: 0 auto; 
+            padding: clamp(12px, 2vw, 20px);
+            padding-bottom: calc(var(--nav-height) + var(--safe-bottom) + 16px);
+        }
+
+        /* ========== DESKTOP HEADER ========== */
+        .header {
+            display: flex; align-items: center; justify-content: space-between;
+            padding: clamp(12px, 1.5vw, 16px) clamp(16px, 2vw, 24px); 
+            border-radius: var(--radius);
+            margin-bottom: 20px; position: relative; overflow: hidden;
+        }
+        .header::after {
+            content: ''; position: absolute; top: 0; left: -100%; width: 100%; height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.08), transparent);
+            animation: shimmer 3s infinite;
+        }
+        @keyframes shimmer { 100%{left:100%;} }
+        .logo { display: flex; align-items: center; gap: 12px; }
+        .logo-icon {
+            width: clamp(40px, 6vw, 48px); height: clamp(40px, 6vw, 48px); 
+            background: var(--gradient-1);
+            border-radius: 14px; display: flex; align-items: center; justify-content: center;
+            font-size: clamp(18px, 4vw, 24px); box-shadow: 0 8px 25px var(--accent-glow);
+            animation: pulse 2s infinite;
+            min-width: var(--touch-target); min-height: var(--touch-target);
+        }
+        @keyframes pulse { 0%,100%{box-shadow: 0 8px 25px var(--accent-glow)} 50%{box-shadow: 0 0 45px var(--accent-glow)} }
+        .logo-text h1 {
+            font-size: clamp(18px, 4vw, 22px); font-weight: 800;
+            background: var(--gradient-animated); background-size: 300% 300%;
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            animation: gradientShift 4s ease infinite;
+            line-height: 1.2;
+        }
+        @keyframes gradientShift { 0%,100%{background-position:0% 50%} 50%{background-position:100% 50%} }
+        .logo-text span { 
+            font-size: clamp(9px, 2vw, 10px); 
+            color: var(--text-muted); 
+            text-transform: uppercase; 
+            letter-spacing: 2px; 
+        }
+        .hdr-btns { display: flex; gap: clamp(6px, 1vw, 10px); align-items: center; }
+        .hdr-btn {
+            width: var(--touch-target); height: var(--touch-target); 
+            border: 1px solid var(--border);
+            background: rgba(255,255,255,0.05); color: var(--text-secondary);
+            border-radius: 12px; cursor: pointer; display: flex; align-items: center; justify-content: center;
+            font-size: clamp(16px, 3vw, 18px); transition: all 0.3s; position: relative; overflow: hidden;
+            touch-action: manipulation;
+        }
+        .hdr-btn:hover { background: var(--accent); color: white; transform: translateY(-3px) scale(1.05); box-shadow: 0 8px 25px var(--accent-glow); border-color: transparent; }
+        .hdr-btn:active { transform: scale(0.92); }
+
+        /* ========== BANNERS ========== */
+        .banner {
+            padding: clamp(10px, 2vw, 12px) clamp(14px, 2.5vw, 18px); 
+            border-radius: var(--radius-sm);
+            margin-bottom: 16px; font-size: clamp(13px, 2.5vw, 14px); font-weight: 600;
+            display: flex; align-items: center; justify-content: space-between;
+            animation: slideDown 0.3s ease; border: 1px solid;
+        }
+        @keyframes slideDown { from{opacity:0;transform:translateY(-10px)} to{opacity:1;transform:translateY(0)} }
+        .banner-event { background: rgba(157,80,255,0.15); border-color: rgba(157,80,255,0.3); color: var(--purple); }
+        .banner-login { background: rgba(255,209,102,0.15); border-color: rgba(255,209,102,0.3); color: var(--gold); }
+        .banner-close { 
+            background: none; border: none; color: inherit; cursor: pointer; 
+            font-size: clamp(16px, 3vw, 18px); padding: 4px 8px; border-radius: 8px;
+            min-width: var(--touch-target); min-height: var(--touch-target);
+            display: flex; align-items: center; justify-content: center;
+        }
+        .banner-close:hover { background: rgba(255,255,255,0.1); }
+
+        /* ========== PROFILE (Desktop) ========== */
+        .profile-bar { 
+            display: grid; 
+            grid-template-columns: 1fr; 
+            gap: clamp(16px, 3vw, 20px); 
+            margin-bottom: 20px; 
+        }
+        @media (min-width: 769px) {
+            .profile-bar { grid-template-columns: 1fr 2fr; }
+        }
+        .profile-card { 
+            border-radius: var(--radius); 
+            padding: clamp(16px, 3vw, 22px); 
+            display: flex; align-items: center; gap: clamp(14px, 2.5vw, 18px); 
+        }
+        .avatar-box { position: relative; cursor: pointer; }
+        .avatar {
+            width: clamp(64px, 10vw, 72px); height: clamp(64px, 10vw, 72px); 
+            border-radius: 20px; background: var(--gradient-1);
+            display: flex; align-items: center; justify-content: center; 
+            font-size: clamp(24px, 5vw, 32px);
+            box-shadow: 0 8px 30px rgba(157,80,255,0.4); transition: all 0.3s; position: relative;
+            min-width: var(--touch-target); min-height: var(--touch-target);
+        }
+        .avatar::after {
+            content: ''; position: absolute; inset: -2px; border-radius: 22px; padding: 2px;
+            background: var(--gradient-animated); background-size: 300% 300%;
+            -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            -webkit-mask-composite: xor; mask-composite: exclude;
+            animation: gradientShift 3s linear infinite; pointer-events: none;
+        }
+        .avatar:hover { transform: scale(1.1) rotate(5deg); }
+        .avatar .lvl {
+            position: absolute; bottom: -6px; right: -6px; background: var(--gradient-1);
+            color: white; font-size: clamp(9px, 2vw, 10px); font-weight: 800; 
+            padding: clamp(3px, 1vw, 4px) clamp(8px, 2vw, 10px);
+            border-radius: 20px; border: 3px solid var(--bg-secondary);
+        }
+        .p-info { flex: 1; min-width: 0; }
+        .p-info h2 { 
+            font-size: clamp(16px, 3vw, 18px); font-weight: 700; 
+            margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+        }
+        .p-info .cls { 
+            color: var(--purple); font-size: clamp(11px, 2vw, 12px); font-weight: 600; 
+            margin-bottom: 8px; display: inline-block; padding: 3px 10px; 
+            border-radius: 20px; background: rgba(183,148,244,0.15);
+        }
+        .bars { display: flex; flex-direction: column; gap: 8px; margin-bottom: 8px; }
+        .bar-c { width: 100%; height: clamp(6px, 1.5vw, 8px); background: rgba(128,128,128,0.15); border-radius: 10px; overflow: hidden; }
+        .bar-xp { height: 100%; background: var(--gradient-1); border-radius: 10px; transition: width 0.5s; }
+        .bar-hp { height: 100%; background: linear-gradient(90deg, var(--red), #ff9e9e); border-radius: 10px; transition: width 0.5s; }
+        .bar-t { font-size: clamp(10px, 2vw, 11px); color: var(--text-muted); display: flex; justify-content: space-between; }
+        .attrs { display: flex; gap: clamp(6px, 1.5vw, 8px); margin-top: 8px; flex-wrap: wrap; }
+        .attr { 
+            font-size: clamp(11px, 2vw, 12px); font-weight: 700; 
+            padding: clamp(4px, 1vw, 5px) clamp(10px, 2vw, 12px); 
+            border-radius: 12px; background: rgba(255,255,255,0.08);
+        }
+        .attr.str { color: var(--red); } .attr.int { color: var(--blue); } .attr.end { color: var(--green); }
+        
+        .stats-grid { 
+            display: grid; 
+            grid-template-columns: repeat(2, 1fr); 
+            gap: clamp(10px, 2vw, 14px); 
+        }
+        @media (min-width: 480px) {
+            .stats-grid { grid-template-columns: repeat(4, 1fr); }
+        }
+        .stat-c { 
+            border-radius: var(--radius); padding: clamp(12px, 2vw, 16px); 
+            text-align: center; transition: all 0.3s;
+        }
+        .stat-c:hover { transform: translateY(-4px); box-shadow: var(--shadow-glow); }
+        .stat-c .si { font-size: clamp(20px, 4vw, 24px); margin-bottom: 6px; }
+        .stat-c .sv { font-size: clamp(18px, 3.5vw, 24px); font-weight: 800; margin-bottom: 2px; }
+        .stat-c .sl { font-size: clamp(9px, 2vw, 10px); color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; }
+        .stat-c:nth-child(1) .sv { color: var(--green); }
+        .stat-c:nth-child(2) .sv { color: var(--gold); }
+        .stat-c:nth-child(3) .sv { color: var(--blue); }
+        .stat-c:nth-child(4) .sv { color: var(--accent); }
+
+        /* ========== SEARCH & FILTER ========== */
+        .search-bar { 
+            display: flex; gap: clamp(8px, 1.5vw, 12px); 
+            margin-bottom: 16px; flex-wrap: wrap; 
+        }
+        .search-input { 
+            flex: 1; min-width: 200px; 
+            padding: clamp(10px, 2vw, 12px) clamp(14px, 2.5vw, 18px); 
+            background: var(--bg-card); border: 1px solid var(--border); 
+            border-radius: var(--radius-sm); color: var(--text-primary); 
+            font-size: clamp(13px, 2.5vw, 14px); outline: none; 
+            transition: all 0.3s; min-height: var(--touch-target);
+        }
+        .search-input:focus { border-color: var(--accent); box-shadow: 0 0 0 4px var(--accent-glow); }
+        .filter-btn { 
+            padding: clamp(6px, 1.5vw, 8px) clamp(12px, 2.5vw, 16px); 
+            border: 1px solid var(--border); background: var(--bg-card); 
+            color: var(--text-secondary); border-radius: 12px; cursor: pointer; 
+            font-size: clamp(11px, 2vw, 12px); font-weight: 600; 
+            transition: all 0.3s; min-height: var(--touch-target);
+            touch-action: manipulation;
+        }
+        .filter-btn:hover, .filter-btn.active { 
+            background: var(--gradient-1); color: white; border-color: transparent; 
+            transform: translateY(-2px); 
+        }
+
+        /* ========== TABS (Desktop) ========== */
+        .tabs { 
+            display: flex; gap: clamp(6px, 1vw, 8px); margin-bottom: 20px; 
+            background: var(--bg-card); border: 1px solid var(--border); 
+            border-radius: var(--radius); padding: clamp(4px, 1vw, 6px); 
+            overflow-x: auto; scrollbar-width: none;
+        }
+        .tabs::-webkit-scrollbar { display: none; }
+        .tab-btn { 
+            flex: 1; min-width: max-content;
+            padding: clamp(10px, 2vw, 12px) clamp(12px, 2.5vw, 16px); 
+            border: none; background: transparent; color: var(--text-muted); 
+            font-size: clamp(12px, 2vw, 13px); font-weight: 600; 
+            border-radius: 12px; cursor: pointer; transition: all 0.3s; 
+            display: flex; align-items: center; justify-content: center; gap: 6px; 
+            white-space: nowrap; min-height: var(--touch-target);
+            touch-action: manipulation;
+        }
+        .tab-btn:hover { color: var(--text-primary); }
+        .tab-btn.active { background: var(--gradient-1); color: white; box-shadow: var(--shadow-glow); }
+        .tab-btn .cnt { background: rgba(255,255,255,0.25); padding: 2px 8px; border-radius: 20px; font-size: clamp(9px, 2vw, 10px); font-weight: 700; }
+
+        /* ========== MAIN LAYOUT ========== */
+        .main-layout { 
+            display: grid; 
+            grid-template-columns: 1fr; 
+            gap: clamp(16px, 3vw, 20px); 
+        }
+        @media (min-width: 769px) {
+            .main-layout { grid-template-columns: 1fr 340px; }
+        }
+        .task-sec { border-radius: var(--radius); padding: clamp(16px, 3vw, 20px); }
+        .sec-hdr { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
+        .sec-hdr h3 { 
+            font-size: clamp(15px, 3vw, 16px); font-weight: 700; 
+            display: flex; align-items: center; gap: 8px; 
+        }
+        .add-btn { 
+            padding: clamp(8px, 1.5vw, 10px) clamp(14px, 2.5vw, 18px); 
+            border: 2px dashed var(--border); background: transparent; 
+            color: var(--text-muted); font-size: clamp(11px, 2vw, 12px); 
+            font-weight: 700; border-radius: 14px; cursor: pointer; 
+            transition: all 0.3s; display: flex; align-items: center; gap: 6px;
+            min-height: var(--touch-target); touch-action: manipulation;
+        }
+        .add-btn:hover { border-color: var(--accent); color: var(--accent); background: rgba(255,42,109,0.1); transform: translateY(-2px); }
+        .task-list { display: flex; flex-direction: column; gap: clamp(8px, 1.5vw, 10px); }
+        .task-item { 
+            display: flex; align-items: center; gap: clamp(12px, 2vw, 14px); 
+            padding: clamp(12px, 2vw, 16px) clamp(14px, 2.5vw, 18px); 
+            background: var(--bg-card); border: 1px solid var(--border); 
+            border-radius: var(--radius-sm); transition: all 0.3s; cursor: grab; 
+            position: relative; overflow: hidden; min-height: var(--touch-target);
+        }
+        .task-item::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 4px; border-radius: 4px 0 0 4px; }
+        .task-item.habit::before { background: var(--gradient-1); }
+        .task-item.daily::before { background: var(--gradient-2); }
+        .task-item.todo::before { background: var(--gradient-3); }
+        .task-item.reward::before { background: linear-gradient(135deg, var(--gold), var(--pink)); }
+        .task-item:hover { background: var(--bg-card-hover); transform: translateX(4px); box-shadow: 0 8px 30px rgba(0,0,0,0.2); border-color: rgba(255,255,255,0.15); }
+        .task-item:active { transform: scale(0.99); }
+        .task-item.completed { opacity: 0.6; }
+        .task-item.completed .t-name { text-decoration: line-through; }
+        .task-item.overdue { border-left: 4px solid var(--red); animation: pulseRed 2s infinite; }
+        @keyframes pulseRed { 0%,100%{border-left-color:var(--red)} 50%{border-left-color:var(--accent)} }
+        .t-check { 
+            width: var(--touch-target); height: var(--touch-target); min-width: var(--touch-target); 
+            border: 2px solid var(--text-muted); border-radius: 8px; 
+            display: flex; align-items: center; justify-content: center; 
+            font-size: clamp(13px, 2.5vw, 14px); transition: all 0.3s; cursor: pointer;
+            touch-action: manipulation;
+        }
+        .task-item:hover .t-check { border-color: var(--green); }
+        .task-item.completed .t-check { background: var(--green); border-color: var(--green); color: white; }
+        .t-info { flex: 1; cursor: pointer; min-width: 0; }
+        .t-name { 
+            font-size: clamp(13px, 2.5vw, 14px); font-weight: 600; margin-bottom: 3px;
+            white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+        }
+        .t-desc { font-size: clamp(11px, 2vw, 12px); color: var(--text-muted); }
+        .t-meta { display: flex; align-items: center; gap: clamp(6px, 1.5vw, 8px); flex-wrap: wrap; margin-top: 6px; }
+        .t-badge { 
+            font-size: clamp(10px, 2vw, 11px); font-weight: 700; 
+            padding: clamp(3px, 1vw, 4px) clamp(8px, 2vw, 10px); border-radius: 20px;
+        }
+        .t-badge.xp { color: var(--purple); background: rgba(183,148,244,0.15); }
+        .t-badge.gold { color: var(--gold); background: rgba(255,209,102,0.15); }
+        .t-badge.cat { color: var(--text-secondary); background: rgba(255,255,255,0.1); }
+        .t-badge.dead { color: var(--red); background: rgba(255,107,107,0.1); }
+        .t-diff { display: flex; gap: 3px; }
+        .t-diff .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--text-muted); }
+        .t-diff .dot.active { background: var(--accent); box-shadow: 0 0 10px var(--accent); }
+        .t-acts { display: flex; gap: clamp(3px, 1vw, 4px); opacity: 0; transition: opacity 0.2s; }
+        .task-item:hover .t-acts { opacity: 1; }
+        .t-act { 
+            width: var(--touch-target); height: var(--touch-target); 
+            border: none; background: transparent; color: var(--text-muted); 
+            border-radius: 8px; cursor: pointer; display: flex; align-items: center; 
+            justify-content: center; font-size: clamp(13px, 2.5vw, 14px); 
+            transition: all 0.2s; touch-action: manipulation;
+        }
+        .t-act:hover { background: rgba(255,255,255,0.1); color: var(--text-primary); transform: scale(1.1); }
+        .t-act.del:hover { background: rgba(255,107,107,0.2); color: var(--red); }
+
+        /* ========== SIDEBAR (Desktop) ========== */
+        .sidebar { display: flex; flex-direction: column; gap: clamp(12px, 2vw, 16px); }
+        .side-c { border-radius: var(--radius); padding: clamp(14px, 2.5vw, 18px); }
+        .side-c h3 { 
+            font-size: clamp(14px, 2.5vw, 15px); font-weight: 700; 
+            margin-bottom: clamp(10px, 2vw, 14px); display: flex; align-items: center; gap: 8px; 
+        }
+        .pomo-box { text-align: center; }
+        .timer { 
+            font-size: clamp(28px, 6vw, 36px); font-weight: 800; 
+            font-variant-numeric: tabular-nums; margin: clamp(6px, 1.5vw, 8px) 0; 
+            background: var(--gradient-animated); background-size: 300% 300%; 
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent; 
+            animation: gradientShift 4s ease infinite;
+        }
+        .timer-ctrls { display: flex; gap: clamp(6px, 1.5vw, 8px); justify-content: center; flex-wrap: wrap; }
+        .t-btn { 
+            padding: clamp(6px, 1.5vw, 8px) clamp(12px, 2.5vw, 16px); 
+            border: none; border-radius: 12px; font-size: clamp(11px, 2vw, 12px); 
+            font-weight: 700; cursor: pointer; transition: all 0.2s;
+            min-height: var(--touch-target); touch-action: manipulation;
+        }
+        .t-btn:hover { transform: translateY(-2px); }
+        .t-btn.start { background: var(--green); color: white; }
+        .t-btn.pause { background: var(--gold); color: #1a1a2e; }
+        .t-btn.reset { background: rgba(255,255,255,0.1); color: var(--text-secondary); }
+        .boss-box { text-align: center; }
+        .boss-emoji { font-size: clamp(36px, 8vw, 42px); margin-bottom: clamp(6px, 1.5vw, 8px); animation: shake 3s infinite; }
+        @keyframes shake { 0%,100%{transform:rotate(0)} 10%,30%,50%,70%,90%{transform:rotate(-2deg)} 20%,40%,60%,80%{transform:rotate(2deg)} }
+        .boss-name { font-size: clamp(14px, 2.5vw, 15px); font-weight: 700; margin-bottom: 6px; }
+        .boss-bar { width: 100%; height: clamp(8px, 1.5vw, 10px); background: rgba(128,128,128,0.15); border-radius: 10px; overflow: hidden; margin: 6px 0; }
+        .boss-fill { height: 100%; background: linear-gradient(90deg, var(--red), #ff9e9e, var(--red)); background-size: 200% 100%; animation: bossPulse 2s ease-in-out infinite; transition: width 0.5s; border-radius: 10px; }
+        @keyframes bossPulse { 0%,100%{background-position:0% 50%} 50%{background-position:100% 50%} }
+        .boss-info { font-size: clamp(10px, 2vw, 11px); color: var(--text-muted); }
+        .pet-box { text-align: center; padding: clamp(6px, 1.5vw, 8px) 0; }
+        .pet-emoji { font-size: clamp(40px, 9vw, 48px); display: block; margin-bottom: clamp(6px, 1.5vw, 8px); animation: bounce 2s infinite; }
+        @keyframes bounce { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-8px)} }
+        .pet-name { font-size: clamp(13px, 2.5vw, 14px); font-weight: 600; color: var(--text-secondary); }
+        .pet-lvl { font-size: clamp(10px, 2vw, 11px); color: var(--text-muted); }
+        .heatmap { display: grid; grid-template-columns: repeat(26, 1fr); gap: clamp(2px, 0.5vw, 3px); margin-top: 10px; }
+        @media (min-width: 769px) {
+            .heatmap { grid-template-columns: repeat(52, 1fr); }
+        }
+        .hm-cell { aspect-ratio: 1; border-radius: 4px; background: rgba(128,128,128,0.1); transition: all 0.15s; cursor: pointer; min-width: 10px; }
+        .hm-cell:hover { transform: scale(2); z-index: 10; }
+        .hm-0 { background: rgba(128,128,128,0.1); } .hm-1 { background: rgba(0,245,160,0.4); } .hm-2 { background: rgba(0,245,160,0.65); } .hm-3 { background: rgba(0,245,160,0.85); } .hm-4 { background: var(--green); box-shadow: 0 0 15px var(--green); }
+        .ach-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: clamp(8px, 1.5vw, 10px); }
+        .ach { 
+            aspect-ratio: 1; background: var(--bg-card); border: 1px solid var(--border); 
+            border-radius: 14px; display: flex; flex-direction: column; 
+            align-items: center; justify-content: center; gap: clamp(3px, 1vw, 4px); 
+            transition: all 0.3s; cursor: pointer; min-height: var(--touch-target);
+            touch-action: manipulation;
+        }
+        .ach:hover { transform: scale(1.08); }
+        .ach.unlocked { border-color: rgba(255,209,102,0.5); background: rgba(255,209,102,0.08); }
+        .ach.unlocked .ai { animation: sparkle 1.5s infinite; }
+        @keyframes sparkle { 0%,100%{transform:scale(1)} 50%{transform:scale(1.2)} }
+        .ach.locked { opacity: 0.4; filter: grayscale(0.8); }
+        .ach .ai { font-size: clamp(18px, 4vw, 22px); } 
+        .ach .an { font-size: clamp(8px, 1.5vw, 9px); color: var(--text-muted); text-align: center; line-height: 1.2; }
+        .today-widget { font-size: clamp(12px, 2vw, 13px); color: var(--text-secondary); line-height: 1.6; }
+        .today-widget b { color: var(--text-primary); }
+        .empty { text-align: center; padding: clamp(30px, 6vw, 40px) clamp(16px, 3vw, 20px); color: var(--text-muted); }
+        .empty .ei { font-size: clamp(40px, 10vw, 48px); margin-bottom: clamp(10px, 2vw, 12px); animation: float 3s ease-in-out infinite; }
+        .empty p { font-size: clamp(13px, 2.5vw, 14px); }
+
+        /* ========== MODAL / SHEET ========== */
+        .modal-ov, .sheet-ov {
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(10,10,20,0.85); backdrop-filter: blur(10px);
+            z-index: 1000; align-items: center; justify-content: center;
+        }
+        .modal-ov.active, .sheet-ov.active { display: flex; }
+        .modal {
+            background: var(--bg-secondary); border: 1px solid var(--glass-border);
+            border-radius: var(--radius); padding: clamp(20px, 4vw, 28px);
+            width: 94%; max-width: 500px; box-shadow: var(--shadow), var(--shadow-glow);
+            animation: modalIn 0.3s ease; max-height: 90vh; overflow-y: auto; position: relative;
+        }
+        .modal::before {
+            content: ''; position: absolute; top: -2px; left: -2px; right: -2px; bottom: -2px;
+            background: var(--gradient-animated); background-size: 400% 400%;
+            border-radius: calc(var(--radius) + 2px); z-index: -1;
+            animation: gradientShift 5s ease infinite; opacity: 0.5; filter: blur(10px);
+        }
+        @keyframes modalIn { from{opacity:0;transform:scale(0.95) translateY(20px)} to{opacity:1;transform:scale(1) translateY(0)} }
+        .modal h3 { font-size: clamp(18px, 4vw, 20px); font-weight: 700; margin-bottom: clamp(14px, 3vw, 18px); display: flex; align-items: center; gap: 8px; }
+        .fg { margin-bottom: clamp(12px, 2.5vw, 16px); }
+        .fg label { display: block; font-size: clamp(11px, 2vw, 12px); font-weight: 600; color: var(--text-secondary); margin-bottom: 6px; }
+        .fg input, .fg textarea, .fg select {
+            width: 100%; padding: clamp(10px, 2vw, 12px) clamp(14px, 2.5vw, 16px); 
+            background: var(--bg-card); border: 1px solid var(--border); 
+            border-radius: 12px; color: var(--text-primary);
+            font-size: clamp(13px, 2.5vw, 14px); font-family: inherit; outline: none; 
+            transition: all 0.3s; min-height: var(--touch-target);
+        }
+        .fg input:focus, .fg textarea:focus, .fg select:focus { border-color: var(--accent); box-shadow: 0 0 0 4px var(--accent-glow); transform: translateY(-1px); }
+        .fg textarea { resize: vertical; min-height: clamp(60px, 12vw, 70px); font-size: clamp(13px, 2.5vw, 14px); }
+        .fr { display: grid; grid-template-columns: 1fr; gap: clamp(12px, 2.5vw, 14px); }
+        @media (min-width: 480px) {
+            .fr { grid-template-columns: 1fr 1fr; }
+        }
+        .diff-sel { display: flex; gap: clamp(6px, 1.5vw, 8px); flex-wrap: wrap; }
+        .d-btn { 
+            flex: 1; min-width: 80px;
+            padding: clamp(8px, 1.5vw, 10px); border: 1px solid var(--border); 
+            background: var(--bg-card); color: var(--text-muted); border-radius: 12px; 
+            cursor: pointer; font-size: clamp(10px, 2vw, 11px); font-weight: 600; 
+            transition: all 0.3s; text-align: center; min-height: var(--touch-target);
+            touch-action: manipulation;
+        }
+        .d-btn:hover { border-color: var(--accent); color: var(--text-primary); }
+        .d-btn.active { background: var(--gradient-1); border-color: transparent; color: white; box-shadow: var(--shadow-glow); }
+        .d-btn:active { transform: scale(0.95); }
+        .m-acts { display: flex; gap: clamp(10px, 2vw, 12px); margin-top: clamp(16px, 3vw, 20px); flex-wrap: wrap; }
+        .btn { 
+            flex: 1; min-width: 120px;
+            padding: clamp(12px, 2.5vw, 14px) clamp(16px, 3vw, 20px); 
+            border: none; border-radius: 14px; font-size: clamp(13px, 2.5vw, 14px); 
+            font-weight: 700; cursor: pointer; transition: all 0.3s; font-family: inherit; 
+            position: relative; overflow: hidden; min-height: var(--touch-target);
+            touch-action: manipulation;
+        }
+        .btn:active { transform: scale(0.96); }
+        .btn-p { background: var(--gradient-1); color: white; box-shadow: 0 6px 20px var(--accent-glow); }
+        .btn-p:hover { transform: translateY(-3px); box-shadow: 0 12px 40px var(--accent-glow); }
+        .btn-s { background: rgba(255,255,255,0.08); color: var(--text-secondary); border: 1px solid var(--border); }
+        .btn-s:hover { background: rgba(255,255,255,0.15); }
+        .shop-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: clamp(10px, 2vw, 12px); margin-top: clamp(12px, 2.5vw, 14px); }
+        .shop-item { 
+            background: var(--bg-card); border: 1px solid var(--border); 
+            border-radius: 16px; padding: clamp(12px, 2.5vw, 14px); text-align: center; 
+            transition: all 0.2s; cursor: pointer; min-height: var(--touch-target);
+            touch-action: manipulation;
+        }
+        .shop-item:hover { border-color: var(--accent); transform: translateY(-3px); }
+        .shop-item.owned { border-color: var(--green); opacity: 0.7; cursor: default; }
+        .shop-item .si-icon { font-size: clamp(24px, 5vw, 28px); margin-bottom: 5px; }
+        .shop-item .si-name { font-size: clamp(12px, 2vw, 13px); font-weight: 600; margin-bottom: 4px; }
+        .shop-item .si-cost { font-size: clamp(11px, 2vw, 12px); color: var(--gold); font-weight: 700; }
+        .shop-item .si-eff { font-size: clamp(9px, 2vw, 10px); color: var(--text-muted); }
+        .avatar-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: clamp(8px, 1.5vw, 10px); margin-top: 10px; }
+        .av-item { 
+            font-size: clamp(24px, 5vw, 32px); padding: clamp(10px, 2vw, 12px); 
+            text-align: center; background: var(--bg-card); border: 1px solid var(--border); 
+            border-radius: 12px; transition: all 0.2s; cursor: pointer;
+            min-height: var(--touch-target); touch-action: manipulation;
+        }
+        .av-item:hover { border-color: var(--accent); transform: scale(1.05); }
+        .av-item.selected { border-color: var(--accent); background: rgba(255,42,109,0.15); box-shadow: 0 0 20px var(--accent-glow); }
+        .toast-c { position: fixed; top: clamp(16px, 3vw, 20px); right: clamp(16px, 3vw, 20px); z-index: 2000; display: flex; flex-direction: column; gap: 10px; pointer-events: none; }
+        .toast { 
+            padding: clamp(12px, 2.5vw, 14px) clamp(16px, 3vw, 20px); 
+            border-radius: 16px; font-size: clamp(13px, 2.5vw, 14px); font-weight: 600; 
+            display: flex; align-items: center; gap: 10px; animation: toastIn 0.3s ease, toastOut 0.3s ease 2.5s forwards; 
+            box-shadow: var(--shadow), var(--shadow-glow); min-width: clamp(220px, 50vw, 240px); 
+            pointer-events: auto; position: relative; overflow: hidden;
+        }
+        .toast::before { content: ''; position: absolute; inset: 0; background: linear-gradient(135deg, rgba(255,255,255,0.15), transparent); }
+        @keyframes toastIn { from{opacity:0;transform:translateX(40px)} to{opacity:1;transform:translateX(0)} }
+        @keyframes toastOut { from{opacity:1} to{opacity:0;transform:translateX(40px)} }
+        .toast.success { background: linear-gradient(135deg, rgba(0,245,160,0.95), rgba(0,245,160,0.85)); color: #0a0a14; }
+        .toast.xp { background: var(--gradient-1); color: white; }
+        .toast.gold-toast { background: linear-gradient(135deg, rgba(255,209,102,0.95), rgba(255,143,171,0.95)); color: #1a1a2e; }
+        .toast.levelup { background: var(--gradient-animated); background-size: 300% 300%; animation: gradientShift 3s ease infinite, toastIn 0.3s ease, toastOut 0.3s ease 2.5s forwards; color: white; }
+        .toast.error { background: linear-gradient(135deg, rgba(239,68,68,0.95), rgba(255,107,107,0.95)); color: white; }
+        .toast.hp { background: linear-gradient(135deg, rgba(255,107,107,0.95), rgba(255,71,87,0.95)); color: white; }
+        .particle { position: fixed; pointer-events: none; z-index: 3000; font-size: clamp(18px, 4vw, 22px); animation: pUp 0.8s ease forwards; }
+        @keyframes pUp { 0%{opacity:1;transform:translateY(0) scale(1) rotate(0deg)} 100%{opacity:0;transform:translateY(-120px) scale(0.3) rotate(360deg)} }
+        .confetti { position: fixed; pointer-events: none; z-index: 2999; width: clamp(10px, 2vw, 12px); height: clamp(10px, 2vw, 12px); animation: confettiFall 1.8s ease forwards; border-radius: 2px; }
+        @keyframes confettiFall { 0%{opacity:1;transform:translateY(-30px) rotate(0deg)} 100%{opacity:0;transform:translateY(100vh) rotate(720deg)} }
+        
+        .fab { 
+            position: fixed; bottom: calc(var(--nav-height) + var(--safe-bottom) + 16px); right: clamp(16px, 3vw, 30px); 
+            width: clamp(48px, 10vw, 56px); height: clamp(48px, 10vw, 56px); 
+            border-radius: clamp(14px, 3vw, 18px); background: var(--gradient-1); 
+            border: none; color: white; font-size: clamp(24px, 5vw, 28px); font-weight: 300; 
+            cursor: pointer; box-shadow: 0 8px 30px var(--accent-glow); transition: all 0.3s; 
+            z-index: 50; display: flex; align-items: center; justify-content: center;
+            min-width: var(--touch-target); min-height: var(--touch-target);
+            touch-action: manipulation;
+        }
+        .fab:hover { transform: scale(1.1) rotate(90deg); box-shadow: 0 15px 50px var(--accent-glow); }
+        .fab:active { transform: scale(0.9); }
+
+        /* ========== MOBILE OVERRIDES ========== */
+        .mobile-only { display: none !important; }
+        .desktop-only { display: block !important; }
+
+        @media (max-width: 768px) {
+            .mobile-only { display: block !important; }
+            .desktop-only { display: none !important; }
+
+            .app { 
+                padding: calc(var(--safe-top) + 12px) clamp(12px, 3vw, 16px) calc(var(--nav-height) + var(--safe-bottom) + 16px); 
+            }
+
+            /* Mobile Header */
+            .m-header { display: flex !important; align-items: center; justify-content: space-between; padding: clamp(10px, 2vw, 12px) clamp(12px, 3vw, 16px); border-radius: var(--radius-sm); margin-bottom: 16px; position: relative; overflow: hidden; }
+            .m-header::after { content: ''; position: absolute; top: 0; left: -100%; width: 100%; height: 100%; background: linear-gradient(90deg, transparent, rgba(255,255,255,0.08), transparent); animation: shimmer 3s infinite; }
+            .hdr-left { display: flex !important; align-items: center; gap: clamp(8px, 2vw, 10px); }
+            .hdr-logo { width: clamp(36px, 8vw, 40px); height: clamp(36px, 8vw, 40px); background: var(--gradient-1); border-radius: 12px; display: flex !important; align-items: center; justify-content: center; font-size: clamp(18px, 4vw, 20px); box-shadow: 0 6px 20px var(--accent-glow); animation: pulse 2s infinite; min-width: var(--touch-target); min-height: var(--touch-target); }
+            .hdr-title h1 { font-size: clamp(16px, 4vw, 17px); font-weight: 800; background: var(--gradient-animated); background-size: 300% 300%; -webkit-background-clip: text; -webkit-text-fill-color: transparent; animation: gradientShift 4s ease infinite; line-height: 1.1; }
+            .hdr-title span { font-size: clamp(8px, 2vw, 9px); color: var(--text-muted); text-transform: uppercase; letter-spacing: 1.5px; }
+            .hdr-right { display: flex !important; gap: clamp(6px, 1.5vw, 8px); align-items: center; }
+            .hdr-btn { width: var(--touch-target); height: var(--touch-target); }
+            .hdr-btn:active { transform: scale(0.9); }
+
+            /* Mobile Layout */
+            .search-bar { gap: clamp(6px, 1.5vw, 8px); }
+            .search-input { min-width: 100%; }
+
+            /* Mobile Tabs (Bottom Nav) */
+            .main-tabs { 
+                position: fixed !important; bottom: 0 !important; left: 0 !important; right: 0 !important; 
+                background: var(--bg-secondary) !important; border-top: 1px solid var(--border) !important; 
+                padding-bottom: var(--safe-bottom) !important; z-index: 100 !important; 
+                backdrop-filter: blur(20px) !important; -webkit-backdrop-filter: blur(20px) !important;
+                padding-left: var(--safe-left); padding-right: var(--safe-right);
+            }
+            .main-tabs-inner { display: flex !important; justify-content: space-around !important; padding: clamp(4px, 1vw, 6px) 4px 0 !important; }
+            .m-tab-btn { 
+                flex: 1 !important; display: flex !important; flex-direction: column !important; 
+                align-items: center !important; gap: clamp(2px, 0.5vw, 3px) !important; 
+                border: none !important; background: transparent !important; 
+                color: var(--text-muted) !important; font-size: clamp(9px, 2vw, 10px) !important; 
+                font-weight: 600 !important; cursor: pointer !important; transition: all 0.3s !important; 
+                padding: clamp(4px, 1vw, 6px) 0 !important; position: relative !important;
+                min-height: var(--touch-target); touch-action: manipulation;
+            }
+            .m-tab-btn .tab-icon { font-size: clamp(20px, 4.5vw, 22px) !important; transition: transform 0.2s !important; }
+            .m-tab-btn:active .tab-icon { transform: scale(1.2) !important; }
+            .m-tab-btn.active { color: var(--accent) !important; }
+            .m-tab-btn.active .tab-icon { transform: scale(1.15) !important; }
+            .m-tab-btn .tab-cnt { 
+                background: var(--accent) !important; color: white !important; 
+                font-size: clamp(8px, 2vw, 9px) !important; font-weight: 700 !important; 
+                padding: 1px clamp(4px, 1vw, 6px) !important; border-radius: 10px !important; 
+                min-width: clamp(16px, 4vw, 18px) !important; text-align: center !important;
+            }
+            .m-tab-btn.active::before { 
+                content: '' !important; position: absolute !important; top: 0 !important; left: 50% !important; 
+                transform: translateX(-50%) !important; width: clamp(26px, 6vw, 30px) !important; 
+                height: clamp(2px, 0.5vw, 3px) !important; border-radius: 3px !important; 
+                background: var(--gradient-1) !important;
+            }
+
+            /* Mobile task items */
+            .task-item { padding: clamp(12px, 2.5vw, 14px); gap: clamp(10px, 2vw, 12px); }
+            .t-check { width: var(--touch-target); height: var(--touch-target); min-width: var(--touch-target); }
+            .t-name { font-size: clamp(12px, 2.5vw, 13px); }
+            .t-desc { font-size: clamp(10px, 2vw, 11px); }
+            .t-acts { opacity: 1 !important; }
+
+            /* Mobile Bottom Sheets */
+            .sheet-ov {
+                display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+                background: rgba(0,0,0,0.7); backdrop-filter: blur(5px);
+                z-index: 200; align-items: flex-end; justify-content: center;
+            }
+            .sheet-ov.active { display: flex !important; }
+            .sheet {
+                background: var(--bg-secondary); border: 1px solid var(--glass-border);
+                border-radius: var(--radius) var(--radius) 0 0; 
+                padding: clamp(16px, 3vw, 20px) clamp(16px, 3vw, 20px) calc(20px + var(--safe-bottom));
+                width: 100%; max-height: 92vh; max-height: 92dvh; overflow-y: auto;
+                animation: sheetIn 0.3s cubic-bezier(0.4, 0, 0.2, 1); position: relative;
+                -webkit-overflow-scrolling: touch;
+            }
+            .sheet::before { content: ''; position: absolute; top: 10px; left: 50%; transform: translateX(-50%); width: 40px; height: 4px; border-radius: 4px; background: var(--text-muted); opacity: 0.3; }
+            @keyframes sheetIn { from{transform:translateY(100%)} to{transform:translateY(0)} }
+        }
+
+        /* Desktop Bottom Sheets hidden by default */
+        .sheet-ov { display: none; }
+
+        /* ========== Settings ========== */
+        .settings-item { 
+            display: flex; align-items: center; justify-content: space-between; 
+            padding: clamp(12px, 2.5vw, 14px) 0; border-bottom: 1px solid var(--border); 
+        }
+        .settings-item:last-child { border-bottom: none; }
+        .settings-left { display: flex; align-items: center; gap: clamp(10px, 2vw, 12px); }
+        .settings-icon { font-size: clamp(18px, 4vw, 20px); }
+        .settings-text { font-size: clamp(13px, 2.5vw, 14px); font-weight: 600; }
+        .settings-desc { font-size: clamp(10px, 2vw, 11px); color: var(--text-muted); }
+        .toggle { 
+            width: clamp(44px, 9vw, 50px); height: clamp(24px, 5vw, 28px); 
+            border-radius: clamp(12px, 2.5vw, 14px); background: rgba(128,128,128,0.3); 
+            position: relative; cursor: pointer; transition: background 0.3s;
+            min-width: var(--touch-target); min-height: var(--touch-target);
+            touch-action: manipulation;
+        }
+        .toggle.active { background: var(--green); }
+        .toggle::after { 
+            content: ''; position: absolute; top: clamp(2px, 0.5vw, 2px); left: clamp(2px, 0.5vw, 2px); 
+            width: clamp(20px, 4vw, 24px); height: clamp(20px, 4vw, 24px); 
+            border-radius: 12px; background: white; transition: transform 0.3s; 
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+        .toggle.active::after { transform: translateX(clamp(20px, 4vw, 22px)); }
+
+        /* Drag & Drop */
+        .task-item.dragging { opacity: 0.5; border: 2px dashed var(--accent); }
+        
+        /* Landscape mobile optimization */
+        @media (max-width: 768px) and (orientation: landscape) {
+            .app { padding-bottom: calc(var(--nav-height) + var(--safe-bottom) + 12px); }
+            .profile-bar { grid-template-columns: 1fr; }
+            .stats-grid { grid-template-columns: repeat(4, 1fr); }
+            .main-layout { grid-template-columns: 1fr; }
+            .sidebar { flex-direction: row; flex-wrap: wrap; }
+            .side-c { flex: 1 1 calc(50% - 8px); min-width: 140px; }
+            .heatmap { grid-template-columns: repeat(26, 1fr); }
+        }
+    </style>
+</head>
+<body>
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+
+    <div class="app">
+        <!-- ========== DESKTOP HEADER ========== -->
+        <header class="header glass desktop-only">
+            <div class="logo">
+                <div class="logo-icon">⚡</div>
+                <div class="logo-text">
+                    <h1>Habitica </h1>
+                    <span>✨ Геймификация жизни</span>
+                </div>
+            </div>
+            <div class="hdr-btns">
+                <button class="hdr-btn" id="undoBtn" title="Отмена (Ctrl+Z)">↩️</button>
+                <button class="hdr-btn" id="shopBtn" title="Магазин">🛡️</button>
+                <button class="hdr-btn" id="themeBtn" title="Тема">🌙</button>
+                <button class="hdr-btn" id="csvBtn" title="CSV">📊</button>
+                <button class="hdr-btn" id="expBtn" title="Бэкап">💾</button>
+                <button class="hdr-btn" id="impBtn" title="Импорт">📥</button>
+                <input type="file" id="impFile" accept=".json" style="display:none">
+            </div>
+        </header>
+
+        <!-- ========== MOBILE HEADER ========== -->
+        <header class="m-header glass mobile-only">
+            <div class="hdr-left">
+                <div class="hdr-logo">⚡</div>
+                <div class="hdr-title">
+                    <h1>Habitica</h1>
+                    <span>✨ Геймификация</span>
+                </div>
+            </div>
+            <div class="hdr-right">
+                <button class="hdr-btn" id="soundToggleMobile" title="Звук">🔊</button>
+                <button class="hdr-btn" id="settingsBtnMobile" title="Настройки">⚙️</button>
+            </div>
+        </header>
+
+        <!-- Banners -->
+        <div id="bannerEvent" class="banner banner-event glass" style="display:none">
+            <span id="eventText"></span>
+            <button class="banner-close" onclick="this.parentElement.style.display='none'" title="Закрыть">✕</button>
+        </div>
+        <div id="bannerLogin" class="banner banner-login glass" style="display:none">
+            <span id="loginText"></span>
+            <button class="banner-close" onclick="this.parentElement.style.display='none'" title="Закрыть">✕</button>
+        </div>
+
+        <!-- Profile -->
+        <div class="profile-bar">
+            <div class="profile-card glass">
+                <div class="avatar-box" id="avatarBox" role="button" tabindex="0" aria-label="Выбрать аватар">
+                    <div class="avatar" id="avatarEl" role="img" aria-label="Аватар">⚡<span class="lvl" id="avatarLvl">5</span></div>
+                </div>
+                <div class="p-info">
+                    <h2 id="pName">Рома</h2>
+                    <div class="cls" id="pClass">⚔️ Воин</div>
+                    <div class="bars">
+                        <div class="bar-wrap" style="display:flex;align-items:center;gap:8px">
+                            <div class="bar-c" style="flex:1"><div class="bar-xp" id="xpBar" style="width:0%"></div></div>
+                            <span style="font-size:10px;color:var(--text-muted);white-space:nowrap" id="xpTxt">0/284 XP</span>
+                        </div>
+                        <div class="bar-wrap" style="display:flex;align-items:center;gap:8px">
+                            <div class="bar-c" style="flex:1"><div class="bar-hp" id="hpBar" style="width:100%"></div></div>
+                            <span style="font-size:10px;color:var(--text-muted);white-space:nowrap" id="hpTxt">50/50 HP</span>
+                        </div>
+                    </div>
+                    <div class="attrs">
+                        <span class="attr str">💪 <span id="aStr">5</span></span>
+                        <span class="attr int">🧠 <span id="aInt">5</span></span>
+                        <span class="attr end">🏃 <span id="aEnd">5</span></span>
+                    </div>
+                </div>
+            </div>
+            <div class="stats-grid">
+                <div class="stat-c glass"><div class="si">✅</div><div class="sv" id="sDone">0</div><div class="sl">Выполнено</div></div>
+                <div class="stat-c glass"><div class="si">💰</div><div class="sv" id="sGold">0</div><div class="sl">Золото</div></div>
+                <div class="stat-c glass"><div class="si">📋</div><div class="sv" id="sActive">0</div><div class="sl">Активных</div></div>
+                <div class="stat-c glass"><div class="si">🔥</div><div class="sv" id="sStreak">0</div><div class="sl">Серия</div></div>
+            </div>
+        </div>
+
+        <!-- Search & Filter -->
+        <div class="search-bar">
+            <input type="text" class="search-input" id="searchInput" placeholder="🔍 Поиск задач..." aria-label="Поиск задач">
+            <button class="filter-btn active" data-filter="all">Все</button>
+            <button class="filter-btn" data-filter="overdue">⏰ Просроч.</button>
+            <button class="filter-btn" data-filter="hard">😤 Сложные</button>
+            <button class="filter-btn" data-filter="today">📅 Сегодня</button>
+        </div>
+
+        <!-- Tabs (Desktop) -->
+        <div class="tabs desktop-only" role="tablist" aria-label="Категории задач">
+            <button class="tab-btn active" data-tab="habits" role="tab" aria-selected="true">🔄 Привычки <span class="cnt" id="cHabits">0</span></button>
+            <button class="tab-btn" data-tab="dailies" role="tab" aria-selected="false">📅 Ежедневные <span class="cnt" id="cDailies">0</span></button>
+            <button class="tab-btn" data-tab="todos" role="tab" aria-selected="false">📝 Задачи <span class="cnt" id="cTodos">0</span></button>
+            <button class="tab-btn" data-tab="rewards" role="tab" aria-selected="false">🎁 Награды <span class="cnt" id="cRewards">0</span></button>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-layout">
+            <div class="task-sec glass">
+                <div class="sec-hdr">
+                    <h3 id="secTitle">🔄 Привычки</h3>
+                    <button class="add-btn desktop-only" id="addBtnDesktop">+ Добавить</button>
+                </div>
+                <div class="task-list" id="taskList" role="list" aria-live="polite"></div>
+            </div>
+            <div class="sidebar desktop-only">
+                <div class="side-c glass">
+                    <h3>📅 Сегодня</h3>
+                    <div id="todayWidgetDesktop" class="today-widget"></div>
+                </div>
+                <div class="side-c glass pomo-box">
+                    <h3>⏱️ Помодоро</h3>
+                    <div class="timer" id="timerDispDesktop" aria-live="polite">25:00</div>
+                    <div class="timer-ctrls">
+                        <button class="t-btn start" id="tStartDesktop" aria-label="Старт таймера">▶ Старт</button>
+                        <button class="t-btn pause" id="tPauseDesktop" style="display:none" aria-label="Пауза">⏸ Пауза</button>
+                        <button class="t-btn reset" id="tResetDesktop" aria-label="Сброс">↺</button>
+                    </div>
+                </div>
+                <div class="side-c glass boss-box">
+                    <h3>🐉 Босс</h3>
+                    <div class="boss-emoji" aria-hidden="true">🐉</div>
+                    <div class="boss-name" id="bName">Теневой Дракон</div>
+                    <div class="boss-bar" role="progressbar" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100" aria-label="Здоровье босса"><div class="boss-fill" id="bHp" style="width:100%"></div></div>
+                    <div class="boss-info" id="bInfo">HP: 100/100</div>
+                </div>
+                <div class="side-c glass">
+                    <h3>🐾 Компаньон</h3>
+                    <div class="pet-box">
+                        <span class="pet-emoji" id="petEmoji" aria-hidden="true">🥚</span>
+                        <div class="pet-name" id="petName">Яйцо дракона</div>
+                        <div class="pet-lvl" id="petLvl">Ур. 1</div>
+                    </div>
+                </div>
+                <div class="side-c glass">
+                    <h3>🗺️ Активность</h3>
+                    <div class="heatmap" id="heatmapDesktop" role="img" aria-label="Календарь активности"></div>
+                </div>
+                <div class="side-c glass">
+                    <h3>🏆 Достижения</h3>
+                    <div class="ach-grid" id="achGridDesktop"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Mobile Sidebar Sections -->
+        <div style="margin-top:16px" class="mobile-only">
+            <div class="side-c glass pomo-box">
+                <h3>⏱️ Помодоро</h3>
+                <div class="timer" id="timerDisp" aria-live="polite">25:00</div>
+                <div class="timer-ctrls">
+                    <button class="t-btn start" id="tStart" aria-label="Старт таймера">▶ Старт</button>
+                    <button class="t-btn pause" id="tPause" style="display:none" aria-label="Пауза">⏸ Пауза</button>
+                    <button class="t-btn reset" id="tReset" aria-label="Сброс">↺</button>
+                </div>
+            </div>
+            <div class="side-c glass boss-box">
+                <h3>🐉 Босс</h3>
+                <div class="boss-emoji" aria-hidden="true">🐉</div>
+                <div class="boss-name" id="bNameMobile">Теневой Дракон</div>
+                <div class="boss-bar" role="progressbar" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100" aria-label="Здоровье босса"><div class="boss-fill" id="bHpMobile" style="width:100%"></div></div>
+                <div class="boss-info" id="bInfoMobile">HP: 100/100</div>
+            </div>
+            <div class="side-c glass">
+                <h3>🐾 Компаньон</h3>
+                <div class="pet-box">
+                    <span class="pet-emoji" id="petEmojiMobile" aria-hidden="true">🥚</span>
+                    <div class="pet-name" id="petNameMobile">Яйцо</div>
+                    <div class="pet-lvl" id="petLvlMobile">Ур. 1</div>
+                </div>
+            </div>
+            <div class="side-c glass">
+                <h3>📅 Сегодня</h3>
+                <div id="todayWidgetMobile" class="today-widget"></div>
+            </div>
+            <div class="side-c glass">
+                <h3>🗺️ Активность</h3>
+                <div class="heatmap" id="heatmap" role="img" aria-label="Календарь активности"></div>
+            </div>
+            <div class="side-c glass">
+                <h3>🏆 Достижения</h3>
+                <div class="ach-grid" id="achGrid"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- FAB -->
+    <button class="fab" id="fabAdd" title="Добавить задачу" aria-label="Добавить задачу">+</button>
+
+    <!-- Mobile Bottom Navigation -->
+    <nav class="main-tabs mobile-only" role="tablist" aria-label="Навигация по категориям">
+        <div class="main-tabs-inner">
+            <button class="m-tab-btn active" data-tab="habits" role="tab" aria-selected="true"><span class="tab-icon" aria-hidden="true">🔄</span><span>Привычки</span><span class="tab-cnt" id="cHabitsMobile" style="display:none">0</span></button>
+            <button class="m-tab-btn" data-tab="dailies" role="tab" aria-selected="false"><span class="tab-icon" aria-hidden="true">📅</span><span>Ежедневные</span><span class="tab-cnt" id="cDailiesMobile" style="display:none">0</span></button>
+            <button class="m-tab-btn" data-tab="todos" role="tab" aria-selected="false"><span class="tab-icon" aria-hidden="true">📝</span><span>Задачи</span><span class="tab-cnt" id="cTodosMobile" style="display:none">0</span></button>
+            <button class="m-tab-btn" data-tab="rewards" role="tab" aria-selected="false"><span class="tab-icon" aria-hidden="true">🎁</span><span>Награды</span><span class="tab-cnt" id="cRewardsMobile" style="display:none">0</span></button>
+        </div>
+    </nav>
+
+    <!-- ========== DESKTOP MODALS ========== -->
+    <div class="modal-ov" id="mTaskDesktop" role="dialog" aria-modal="true" aria-labelledby="mTaskTitleDesktop">
+        <div class="modal">
+            <h3 id="mTaskTitleDesktop">✨ Новая привычка</h3>
+            <div class="fg"><label for="tNameDesktop">Название</label><input type="text" id="tNameDesktop" placeholder="Медитация 10 мин" required></div>
+            <div class="fg"><label for="tDescDesktop">Описание</label><textarea id="tDescDesktop" placeholder="Подробности..."></textarea></div>
+            <div class="fr">
+                <div class="fg"><label for="tCatDesktop">Категория</label><select id="tCatDesktop"><option>Здоровье</option><option>Работа</option><option>Учёба</option><option>Спорт</option><option>Личное</option></select></div>
+                <div class="fg"><label for="tDeadDesktop">Дедлайн</label><input type="date" id="tDeadDesktop"></div>
+            </div>
+            <div class="fg"><label>Сложность</label><div class="diff-sel" role="radiogroup">
+                <button class="d-btn active" data-diff="easy" role="radio" aria-checked="true">😊 Лёгкая</button>
+                <button class="d-btn" data-diff="medium" role="radio" aria-checked="false">😐 Средняя</button>
+                <button class="d-btn" data-diff="hard" role="radio" aria-checked="false">😤 Сложная</button>
+            </div></div>
+            <div class="fg" id="rewardCostBoxDesktop" style="display:none"><label for="tCostDesktop">Стоимость 💰</label><input type="number" id="tCostDesktop" placeholder="50" min="1"></div>
+            <div class="m-acts"><button class="btn btn-s" id="mTaskCancelDesktop">Отмена</button><button class="btn btn-p" id="mTaskSaveDesktop">✨ Создать</button></div>
+        </div>
+    </div>
+
+    <div class="modal-ov" id="mShopDesktop" role="dialog" aria-modal="true">
+        <div class="modal">
+            <h3>🛡️ Магазин</h3>
+            <p style="font-size:12px;color:var(--text-muted);margin-bottom:12px">Покупайте предметы за золото</p>
+            <div class="shop-grid" id="shopGridDesktop"></div>
+            <div class="m-acts"><button class="btn btn-s" onclick="closeModal('mShopDesktop')">Закрыть</button></div>
+        </div>
+    </div>
+
+    <div class="modal-ov" id="mAvatarDesktop" role="dialog" aria-modal="true">
+        <div class="modal">
+            <h3>🎨 Выбор аватара</h3>
+            <div class="avatar-grid" id="avatarGridDesktop" role="radiogroup" aria-label="Выберите аватар"></div>
+            <div class="m-acts"><button class="btn btn-s" onclick="closeModal('mAvatarDesktop')">Закрыть</button></div>
+        </div>
+    </div>
+
+    <div class="modal-ov" id="mSettingsDesktop" role="dialog" aria-modal="true">
+        <div class="modal">
+            <h3>⚙️ Настройки</h3>
+            <div class="settings-item">
+                <div class="settings-left">
+                    <span class="settings-icon" aria-hidden="true">🌓</span>
+                    <div>
+                        <div class="settings-text">Тёмная тема</div>
+                        <div class="settings-desc">Переключить тему</div>
+                    </div>
+                </div>
+                <div class="toggle active desktop-only" id="themeToggleDesktop" role="switch" aria-checked="true" tabindex="0" onclick="toggleThemeDesktop()"></div>
+            </div>
+            <div class="settings-item">
+                <div class="settings-left">
+                    <span class="settings-icon" aria-hidden="true">🔊</span>
+                    <div>
+                        <div class="settings-text">Звуки</div>
+                        <div class="settings-desc">Звуковые эффекты</div>
+                    </div>
+                </div>
+                <div class="toggle active" id="soundSettingDesktop" role="switch" aria-checked="true" tabindex="0" onclick="toggleSound()"></div>
+            </div>
+            <div style="margin-top:20px">
+                <button class="btn btn-s" style="width:100%;margin-bottom:10px" onclick="exportData()">💾 Экспорт данных</button>
+                <button class="btn btn-s" style="width:100%;margin-bottom:10px" onclick="importData()">📥 Импорт данных</button>
+                <button class="btn btn-s" style="width:100%;margin-bottom:10px" onclick="exportCSV()">📊 Экспорт CSV</button>
+                <button class="btn btn-s" style="width:100%" onclick="undoAction()">↩️ Отменить</button>
+            </div>
+            <div class="m-acts" style="margin-top:12px"><button class="btn btn-p" onclick="closeModal('mSettingsDesktop')">Закрыть</button></div>
+        </div>
+    </div>
+
+    <!-- ========== MOBILE BOTTOM SHEETS ========== -->
+    <div class="sheet-ov mobile-only" id="mTaskMobile" role="dialog" aria-modal="true" aria-labelledby="mTaskTitleMobile">
+        <div class="sheet" id="mTaskSheet">
+            <h3 id="mTaskTitleMobile">✨ Новая привычка</h3>
+            <div class="fg"><label for="tNameMobile">Название</label><input type="text" id="tNameMobile" placeholder="Медитация 10 мин" required></div>
+            <div class="fg"><label for="tDescMobile">Описание</label><textarea id="tDescMobile" placeholder="Подробности..."></textarea></div>
+            <div class="fr">
+                <div class="fg"><label for="tCatMobile">Категория</label><select id="tCatMobile"><option>Здоровье</option><option>Работа</option><option>Учёба</option><option>Спорт</option><option>Личное</option></select></div>
+                <div class="fg"><label for="tDeadMobile">Дедлайн</label><input type="date" id="tDeadMobile"></div>
+            </div>
+            <div class="fg"><label>Сложность</label><div class="diff-sel" role="radiogroup">
+                <button class="d-btn active" data-diff="easy" role="radio" aria-checked="true">😊 Лёгкая</button>
+                <button class="d-btn" data-diff="medium" role="radio" aria-checked="false">😐 Средняя</button>
+                <button class="d-btn" data-diff="hard" role="radio" aria-checked="false">😤 Сложная</button>
+            </div></div>
+            <div class="fg" id="rewardCostBoxMobile" style="display:none"><label for="tCostMobile">Стоимость 💰</label><input type="number" id="tCostMobile" placeholder="50" min="1"></div>
+            <div class="m-acts"><button class="btn btn-s" id="mTaskCancelMobile">Отмена</button><button class="btn btn-p" id="mTaskSaveMobile">✨ Создать</button></div>
+        </div>
+    </div>
+
+    <div class="sheet-ov mobile-only" id="mShopMobile" role="dialog" aria-modal="true">
+        <div class="sheet">
+            <h3>🛡️ Магазин</h3>
+            <p style="font-size:12px;color:var(--text-muted);margin-bottom:12px">Покупайте предметы за золото</p>
+            <div class="shop-grid" id="shopGridMobile"></div>
+            <div class="m-acts"><button class="btn btn-s" onclick="closeSheet('mShopMobile')">Закрыть</button></div>
+        </div>
+    </div>
+
+    <div class="sheet-ov mobile-only" id="mAvatarMobile" role="dialog" aria-modal="true">
+        <div class="sheet">
+            <h3>🎨 Выбор аватара</h3>
+            <div class="avatar-grid" id="avatarGridMobile" role="radiogroup" aria-label="Выберите аватар"></div>
+            <div class="m-acts"><button class="btn btn-s" onclick="closeSheet('mAvatarMobile')">Закрыть</button></div>
+        </div>
+    </div>
+
+    <div class="sheet-ov mobile-only" id="mSettingsMobile" role="dialog" aria-modal="true">
+        <div class="sheet">
+            <h3>⚙️ Настройки</h3>
+            <div class="settings-item">
+                <div class="settings-left">
+                    <span class="settings-icon" aria-hidden="true">🌓</span>
+                    <div><div class="settings-text">Тёмная тема</div></div>
+                </div>
+                <div class="toggle active" id="themeToggleMobile" role="switch" aria-checked="true" tabindex="0" onclick="toggleThemeMobile()"></div>
+            </div>
+            <div class="settings-item">
+                <div class="settings-left">
+                    <span class="settings-icon" aria-hidden="true">🔊</span>
+                    <div><div class="settings-text">Звуки</div></div>
+                </div>
+                <div class="toggle active" id="soundSettingMobile" role="switch" aria-checked="true" tabindex="0" onclick="toggleSound()"></div>
+            </div>
+            <div style="margin-top:20px">
+                <button class="btn btn-s" style="width:100%;margin-bottom:10px" onclick="exportData()">💾 Экспорт</button>
+                <button class="btn btn-s" style="width:100%;margin-bottom:10px" onclick="importData()">📥 Импорт</button>
+                <button class="btn btn-s" style="width:100%;margin-bottom:10px" onclick="exportCSV()">📊 CSV</button>
+                <button class="btn btn-s" style="width:100%" onclick="undoAction()">↩️ Отменить</button>
+            </div>
+            <div class="m-acts" style="margin-top:12px"><button class="btn btn-p" onclick="closeSheet('mSettingsMobile')">Закрыть</button></div>
+        </div>
+    </div>
+
+    <div class="toast-c" id="toastC" aria-live="assertive" aria-atomic="true"></div>
+    <input type="file" id="impFile2" accept=".json" style="display:none">
+
+    <script>
+        var KEY = "habitica_responsive_v2";
+        var S = load();
+        var tab = "habits", editDiff = "easy", editMode = false, editId = null, timerInt = null, soundEnabled = true;
+        var dragId = null;
+
+        var CLASSES = [{l:1,t:"Новичок",a:"🧙"},{l:3,t:"Ученик",a:"📚"},{l:5,t:"Воин",a:"⚔️"},{l:8,t:"Рыцарь",a:"🛡️"},{l:12,t:"Маг",a:"🔮"},{l:16,t:"Мастер",a:"👑"},{l:20,t:"Легенда",a:"🌟"},{l:30,t:"Божество",a:"✨"}];
+        var PETS = [{m:1,e:"🥚",n:"Яйцо"},{m:3,e:"🐣",n:"Вылупился"},{m:5,e:"🐉",n:"Дракончик"},{m:8,e:"🔥",n:"Огненный"},{m:12,e:"🐲",n:"Виверн"},{m:16,e:"🌌",n:"Звёздный"}];
+        var ACHS = [
+            {id:"t1",n:"Первый шаг",i:"🌱",c:s=>s.tasks.length>=1},{id:"d1",n:"Начало",i:"✅",c:s=>s.player.done>=1},
+            {id:"d5",n:"На ходу",i:"🏃",c:s=>s.player.done>=5},{id:"d10",n:"Десятка",i:"🔟",c:s=>s.player.done>=10},
+            {id:"s3",n:"Серия 3",i:"🔥",c:s=>s.player.maxStreak>=3},{id:"s7",n:"Неделя",i:"💪",c:s=>s.player.maxStreak>=7},
+            {id:"l5",n:"Воин",i:"⚔️",c:s=>s.player.level>=5},{id:"b3",n:"Убийца боссов",i:"🗡️",c:s=>(s.bossDef||0)>=3},
+            {id:"g100",n:"Богач",i:"💎",c:s=>s.player.gold>=100},{id:"t5",n:"Планер",i:"📋",c:s=>s.tasks.length>=5},
+            {id:"s30",n:"Месяц",i:"🌙",c:s=>s.player.maxStreak>=30},{id:"d50",n:"Машина",i:"🤖",c:s=>s.player.done>=50}
+        ];
+        var SHOP = [
+            {id:"sw1",n:"Стальной меч",i:"🗡️",c:30,e:{bd:5},d:"+5 урон боссу"},
+            {id:"bk1",n:"Книга мудрости",i:"📖",c:40,e:{xm:0.2},d:"+20% XP"},
+            {id:"rn1",n:"Кольцо удачи",i:"💍",c:50,e:{gm:0.3},d:"+30% золота"},
+            {id:"pt1",n:"Зелье жизни",i:"🧪",c:25,e:{hr:2},d:"+2 лечение"},
+            {id:"sh1",n:"Щит стража",i:"🛡️",c:60,e:{dr:3},d:"-3 урон"},
+            {id:"am1",n:"Амулет опыта",i:"📿",c:80,e:{xm:0.3,gm:0.1},d:"+30% XP, +10% золота"}
+        ];
+        var AVATARS = ["⚡","🧙","🥷","🧝","🧛","🤖","🐺","🦊","🐻","🦁","🐯","🐲","🦄","👾"];
+        var EVENTS = [
+            {t:"double_xp",d:"🌟 Двойной XP!"},{t:"gold_rush",d:"💰 +50% золота"},
+            {t:"boss_fury",d:"🐉 +50% урона"},{t:"healing",d:"💚 +3 HP за задачу"},
+            {t:"lucky",d:"🍀 Шанс x2 золота"},{t:"rainbow",d:"🌈 Все +25%"}
+        ];
+
+        function def(){return{player:{name:"Рома",level:5,xp:0,xpN:284,gold:50,hp:50,maxHp:50,maxStreak:0,streak:0,done:0,cls:"Воин",av:"⚡",attr:{str:5,int:5,end:5}},tasks:[],achs:{},activeDates:[],dailyStats:{},lastActive:null,lastReset:null,theme:"dark",pet:{l:1,e:"🥚",n:"Яйцо"},boss:{n:"Теневой Дракон",hp:100,maxHp:100,dmg:10,rew:{xp:60,gold:40}},bossDef:0,purchased:[],dailyLogin:{streak:0,last:null},dailyEvent:{t:null,exp:null,d:""},undo:[],search:"",filter:"all",pomo:{dur:25,rem:1500,run:false},sound:true}}
+        function load(){try{var s=localStorage.getItem(KEY);if(s){var p=JSON.parse(s);var r=def();for(var k in r)if(p.hasOwnProperty(k))r[k]=p[k];return r;}}catch(e){}return def();}
+        function save(){try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}}
+        function pushUndo(){S.undo.push(JSON.stringify({tasks:S.tasks,player:S.player,boss:S.boss,pet:S.pet}));if(S.undo.length>5)S.undo.shift();}
+        function undoAction(){if(!S.undo.length)return toast("↩️ Нет действий","error");var prev=JSON.parse(S.undo.pop());S.tasks=prev.tasks;S.player=prev.player;S.boss=prev.boss;S.pet=prev.pet;save();render();toast("↩️ Отменено","success");}
+        function isMobile(){return window.innerWidth<=768}
+
+        var actx=null;function initA(){if(!actx)try{actx=new(window.AudioContext||window.webkitAudioContext)}catch(e){}}
+        function tone(f,d,t){if(!soundEnabled)return;initA();if(!actx)return;try{var o=actx.createOscillator(),g=actx.createGain();o.type=t||"sine";o.frequency.setValueAtTime(f,actx.currentTime);g.gain.setValueAtTime(0.08,actx.currentTime);g.gain.exponentialRampToValueAtTime(0.001,actx.currentTime+d);o.connect(g);g.connect(actx.destination);o.start();o.stop(actx.currentTime+d)}catch(e){}}
+        function snd(t){if(!soundEnabled)return;if(t=="ok"){tone(523,0.1);setTimeout(()=>tone(659,0.15),100)}else if(t=="err"){tone(200,0.2,"sawtooth")}else if(t=="lvl"){tone(440,0.1);setTimeout(()=>tone(554,0.1),100);setTimeout(()=>tone(659,0.2),200)}else if(t=="coin"){tone(1200,0.08);setTimeout(()=>tone(1600,0.12),80)}}
+
+        function bonuses(){var b={xm:0,gm:0,bd:0,hr:0,dr:0};S.purchased.forEach(id=>{var it=SHOP.find(x=>x.id===id);if(it){if(it.e.xm)b.xm+=it.e.xm;if(it.e.gm)b.gm+=it.e.gm;if(it.e.bd)b.bd+=it.e.bd;if(it.e.hr)b.hr+=it.e.hr;if(it.e.dr)b.dr+=it.e.dr;}});return b;}
+        function calcXp(b){var bn=bonuses();var m=1+bn.xm;if(S.dailyEvent.t==="double_xp"&&S.dailyEvent.exp>new Date().toISOString())m*=2;if(S.dailyEvent.t==="rainbow"&&S.dailyEvent.exp>new Date().toISOString())m*=1.25;return Math.floor(b*m);}
+        function calcGold(b){var bn=bonuses();var m=1+bn.gm;if(S.dailyEvent.t==="gold_rush"&&S.dailyEvent.exp>new Date().toISOString())m+=0.5;if(S.dailyEvent.t==="lucky"&&S.dailyEvent.exp>new Date().toISOString()&&Math.random()<0.3)m*=2;if(S.dailyEvent.t==="rainbow"&&S.dailyEvent.exp>new Date().toISOString())m*=1.25;return Math.floor(b*m);}
+        function calcBossDmg(b){return b+bonuses().bd+(S.dailyEvent.t==="boss_fury"&&S.dailyEvent.exp>new Date().toISOString()?Math.floor(b*0.5):0);}
+        function calcHeal(b){return b+bonuses().hr+(S.dailyEvent.t==="healing"&&S.dailyEvent.exp>new Date().toISOString()?3:0);}
+        function calcDmgTaken(b){return Math.max(1,b-bonuses().dr);}
+
+        function addXp(a){S.player.xp+=a;while(S.player.xp>=S.player.xpN){S.player.xp-=S.player.xpN;S.player.level++;S.player.xpN=Math.floor(S.player.xpN*1.3);S.player.maxHp+=5;S.player.hp=S.player.maxHp;updCls();updPet();snd("lvl");toast("🎉 Уровень "+S.player.level+"!","levelup");confetti();}}
+        function updCls(){var t=CLASSES[0];for(var i=0;i<CLASSES.length;i++)if(S.player.level>=CLASSES[i].l)t=CLASSES[i];S.player.cls=t.t;}
+        function updPet(){var p=PETS[0];for(var i=0;i<PETS.length;i++)if(S.player.level>=PETS[i].m)p=PETS[i];S.pet={l:p.m,e:p.e,n:p.n};}
+        function updStreak(){var td=new Date().toISOString().split("T")[0];if(S.lastActive===td)return;var yd=new Date(Date.now()-864e5).toISOString().split("T")[0];S.player.streak=(S.lastActive===yd)?S.player.streak+1:1;if(S.player.streak>S.player.maxStreak)S.player.maxStreak=S.player.streak;S.lastActive=td;if(S.activeDates.indexOf(td)===-1)S.activeDates.push(td);}
+        function recDaily(){var td=new Date().toISOString().split("T")[0];if(!S.dailyStats[td])S.dailyStats[td]=0;S.dailyStats[td]++;}
+        function dmgBoss(a){S.boss.hp=Math.max(0,S.boss.hp-a);if(S.boss.hp<=0){S.bossDef=(S.bossDef||0)+1;addXp(S.boss.rew.xp);S.player.gold+=S.boss.rew.gold;snd("coin");toast("🗡️ Босс повержен!","gold-toast");spawn("💰");S.boss.maxHp=Math.floor(S.boss.maxHp*1.4);S.boss.hp=S.boss.maxHp;S.boss.dmg+=2;S.boss.rew.xp=Math.floor(S.boss.rew.xp*1.3);S.boss.rew.gold=Math.floor(S.boss.rew.gold*1.3);}}
+        function heal(a){S.player.hp=Math.min(S.player.maxHp,S.player.hp+a);}
+        function takeDmg(a){S.player.hp=Math.max(0,S.player.hp-a);if(S.player.hp<=0){var lost=Math.floor(S.player.gold*0.3);S.player.gold=Math.max(0,S.player.gold-lost);S.player.streak=0;S.player.hp=S.player.maxHp;snd("err");toast("💀 Погибли! -"+lost+" 💰","hp");}}
+
+        function genId(){return "t_"+Date.now()+"_"+Math.random().toString(36).substr(2,7);}
+        function addTask(type,name,desc,cat,dead,diff,cost){pushUndo();S.tasks.push({id:genId(),type:type,name:name,desc:desc||"",cat:cat||"Личное",dead:dead||"",diff:diff||"easy",cost:cost||0,done:false,streak:0,created:new Date().toISOString()});save();}
+        function updTask(id,data){pushUndo();for(var i=0;i<S.tasks.length;i++){if(S.tasks[i].id===id){for(var k in data)S.tasks[i][k]=data[k];break;}}save();}
+        function toggleTask(id){
+            var t=null;for(var i=0;i<S.tasks.length;i++)if(S.tasks[i].id===id){t=S.tasks[i];break;}if(!t)return;
+            if(t.type==="reward"){if(S.player.gold>=t.cost){S.player.gold-=t.cost;snd("coin");toast("🎁 "+t.name+"!","gold-toast");spawn("🎁");}else{snd("err");toast("❌ Не хватает "+(t.cost-S.player.gold)+" 💰","error");}save();render();return;}
+            if(!t.done){pushUndo();t.done=true;t.streak++;var xp=calcXp(t.diff==="easy"?10:t.diff==="medium"?20:35);var gold=calcGold(t.diff==="easy"?5:t.diff==="medium"?12:20);addXp(xp);S.player.gold+=gold;S.player.done++;var attr=t.cat==="Здоровье"||t.cat==="Спорт"?"str":t.cat==="Учёба"?"int":"end";S.player.attr[attr]++;heal(calcHeal(2));dmgBoss(calcBossDmg(S.boss.dmg));updStreak();recDaily();snd("ok");toast("✅ "+t.name+" +"+xp+" XP","success");spawn("⭐");}
+            else{pushUndo();t.done=false;t.streak=Math.max(0,t.streak-1);S.player.xp=Math.max(0,S.player.xp-(t.diff==="easy"?10:t.diff==="medium"?20:35));S.player.gold=Math.max(0,S.player.gold-(t.diff==="easy"?5:t.diff==="medium"?12:20));S.player.done=Math.max(0,S.player.done-1);var attr2=t.cat==="Здоровье"||t.cat==="Спорт"?"str":t.cat==="Учёба"?"int":"end";S.player.attr[attr2]=Math.max(0,S.player.attr[attr2]-1);}
+            save();render();
+        }
+        function delTask(id){pushUndo();S.tasks=S.tasks.filter(function(x){return x.id!==id;});save();render();toast("🗑️ Удалено","error");}
+        function getTasks(){
+            var map={habits:"habit",dailies:"daily",todos:"todo",rewards:"reward"};
+            var list=S.tasks.filter(function(x){return x.type===map[tab];});
+            if(S.search){var q=S.search.toLowerCase();list=list.filter(function(x){return x.name.toLowerCase().indexOf(q)!==-1||x.desc.toLowerCase().indexOf(q)!==-1;});}
+            var td=new Date().toISOString().split("T")[0];
+            if(S.filter==="overdue")list=list.filter(function(x){return x.dead&&x.dead<td&&!x.done;});
+            if(S.filter==="hard")list=list.filter(function(x){return x.diff==="hard";});
+            if(S.filter==="today")list=list.filter(function(x){return x.dead===td;});
+            return list;
+        }
+
+        function checkDaily(){
+            var td=new Date().toISOString().split("T")[0];
+            if(S.lastReset!==td){
+                var missed=0;for(var i=0;i<S.tasks.length;i++){if(S.tasks[i].type==="daily"){if(!S.tasks[i].done)missed++;S.tasks[i].done=false;}}
+                if(missed>0){var dmg=calcDmgTaken(missed*5);takeDmg(dmg);toast("😴 Пропущено "+missed+"!","hp");}
+                S.lastReset=td;
+                var dl=S.dailyLogin;if(dl.last!==td){var diff=dl.last?Math.floor((new Date(td)-new Date(dl.last))/864e5):1;dl.streak=(diff===1)?dl.streak+1:1;dl.last=td;var rew={1:"5💰",3:"15💰",7:"30💰",14:"50💰",30:"100💰"};if(rew[dl.streak]){var g=dl.streak>=30?100:dl.streak>=14?50:dl.streak>=7?30:dl.streak>=3?15:5;S.player.gold+=g;document.getElementById("loginText").textContent="📅 Серия: "+dl.streak+" дн. | "+rew[dl.streak];document.getElementById("bannerLogin").style.display="flex";snd("coin");}}
+                if(!S.dailyEvent.exp||S.dailyEvent.exp<td){var ev=EVENTS[Math.floor(Math.random()*EVENTS.length)];S.dailyEvent={t:ev.t,exp:new Date(new Date(td).getTime()+864e5).toISOString(),d:ev.d};document.getElementById("eventText").textContent=ev.d;document.getElementById("bannerEvent").style.display="flex";}
+                save();
+            }
+        }
+
+        function render(){rProf();rStats();rTasks();rCounts();rHeat();rBoss();rPet();rAch();rToday();applyTheme();}
+        function esc(s){var d=document.createElement("div");d.textContent=s;return d.innerHTML;}
+
+        function rProf(){
+            updCls();updPet();
+            document.getElementById("pName").textContent=S.player.name;
+            document.getElementById("pClass").textContent="⚔️ "+S.player.cls;
+            var av=document.getElementById("avatarEl");var badge=av.querySelector(".lvl");av.textContent=S.player.av;av.appendChild(badge);
+            document.getElementById("avatarLvl").textContent=S.player.level;
+            document.getElementById("xpBar").style.width=((S.player.xp/S.player.xpN)*100)+"%";
+            document.getElementById("xpTxt").textContent=S.player.xp+"/"+S.player.xpN+" XP";
+            document.getElementById("hpBar").style.width=((S.player.hp/S.player.maxHp)*100)+"%";
+            document.getElementById("hpTxt").textContent=S.player.hp+"/"+S.player.maxHp+" HP";
+            document.getElementById("aStr").textContent=S.player.attr.str;
+            document.getElementById("aInt").textContent=S.player.attr.int;
+            document.getElementById("aEnd").textContent=S.player.attr.end;
+        }
+        function rStats(){
+            document.getElementById("sDone").textContent=S.player.done;
+            document.getElementById("sGold").textContent=S.player.gold;
+            var ac=0;for(var i=0;i<S.tasks.length;i++)if(!S.tasks[i].done&&S.tasks[i].type!=="reward")ac++;
+            document.getElementById("sActive").textContent=ac;
+            document.getElementById("sStreak").textContent=S.player.maxStreak;
+        }
+        function rCounts(){
+            var h=0,d=0,t=0,r=0;for(var i=0;i<S.tasks.length;i++){if(S.tasks[i].type==="habit")h++;if(S.tasks[i].type==="daily")d++;if(S.tasks[i].type==="todo")t++;if(S.tasks[i].type==="reward")r++;}
+            ["cHabits","cHabitsMobile"].forEach(function(id){var e=document.getElementById(id);if(e){e.textContent=h;e.style.display=h?"inline":"none";}});
+            ["cDailies","cDailiesMobile"].forEach(function(id){var e=document.getElementById(id);if(e){e.textContent=d;e.style.display=d?"inline":"none";}});
+            ["cTodos","cTodosMobile"].forEach(function(id){var e=document.getElementById(id);if(e){e.textContent=t;e.style.display=t?"inline":"none";}});
+            ["cRewards","cRewardsMobile"].forEach(function(id){var e=document.getElementById(id);if(e){e.textContent=r;e.style.display=r?"inline":"none";}});
+        }
+        function rTasks(){
+            var list=document.getElementById("taskList");var tasks=getTasks();
+            var titles={habits:"🔄 Привычки",dailies:"📅 Ежедневные",todos:"📝 Задачи",rewards:"🎁 Награды"};
+            document.getElementById("secTitle").textContent=titles[tab];
+            if(!tasks.length){var msgs={habits:"✨ Добавьте привычку!",dailies:"📅 Создайте ежедневные!",todos:"📝 Добавьте задачи!",rewards:"🎁 Создайте награды!"};list.innerHTML="<div class=\"empty\"><div class=\"ei\">🚀</div><p>"+msgs[tab]+"</p></div>";return;}
+            var sorted=tasks.slice().sort(function(a,b){if(a.done!==b.done)return a.done?1:-1;var do_={hard:0,medium:1,easy:2};return(do_[a.diff]||2)-(do_[b.diff]||2);});
+            var html="";var td=new Date().toISOString().split("T")[0];
+            for(var i=0;i<sorted.length;i++){var t=sorted[i];var d={easy:1,medium:2,hard:3}[t.diff]||1;var xp=t.type==="reward"?"+"+t.cost+"💰":"+"+calcXp(t.diff==="easy"?10:t.diff==="medium"?20:35)+" XP";var cc=t.done?"completed":"";var ov=t.dead&&t.dead<td&&!t.done?"overdue":"";var dots="";for(var j=1;j<=3;j++)dots+="<div class=\"dot"+(j<=d?" active":"")+"\"></div>";
+            var badgeCls=t.type==="reward"?"gold":"xp";
+            html+="<div class=\"task-item "+t.type+" "+cc+" "+ov+"\" draggable=\"true\" data-id=\""+t.id+"\" role=\"listitem\" tabindex=\"0\">";
+            html+="<div class=\"t-check\">"+(t.done?"✓":"")+"</div>";
+            html+="<div class=\"t-info\"><div class=\"t-name\">"+esc(t.name)+"</div>";if(t.desc)html+="<div class=\"t-desc\">"+esc(t.desc)+"</div>";html+="<div class=\"t-meta\">";
+            html+="<span class=\"t-badge "+badgeCls+"\">"+xp+"</span>";
+            if(t.streak>0)html+="<span class=\"t-badge gold\">🔥"+t.streak+"</span>";
+            html+="<span class=\"t-badge cat\">"+esc(t.cat)+"</span>";if(t.dead)html+="<span class=\"t-badge dead\">"+t.dead+"</span>";
+            html+="<div class=\"t-diff\">"+dots+"</div></div></div>";
+            html+="<div class=\"t-acts desktop-only\"><button class=\"t-act\" onclick=\"openEdit('"+t.id+"')\" aria-label=\"Редактировать\">✏️</button><button class=\"t-act del\" onclick=\"delTask('"+t.id+"')\" aria-label=\"Удалить\">🗑</button></div>";
+            html+="</div>";}
+            list.innerHTML=html;initDragDrop();initSwipe();
+        }
+        function rHeat(){
+            var h="";var now=new Date();var count=isMobile()?26:52;
+            for(var i=count*7-1;i>=0;i--){var d=new Date();d.setDate(now.getDate()-i);var k=d.toISOString().split("T")[0];var v=S.dailyStats[k]||0;var cls=v===0?"hm-0":v<=2?"hm-1":v<=4?"hm-2":v<=6?"hm-3":"hm-4";h+="<div class=\"hm-cell "+cls+"\" title=\""+k+": "+v+"\" role=\"img\" aria-label=\""+k+": "+v+" задач\"></div>";}
+            ["heatmap","heatmapDesktop"].forEach(function(id){var e=document.getElementById(id);if(e)e.innerHTML=h;});
+        }
+        function rBoss(){
+            var hp=((S.boss.hp/S.boss.maxHp)*100)+"%";var info="HP: "+S.boss.hp+"/"+S.boss.maxHp;
+            var els=[['bName','bNameMobile'],['bHp','bHpMobile'],['bInfo','bInfoMobile']];
+            document.getElementById("bName").textContent=S.boss.n;document.getElementById("bNameMobile").textContent=S.boss.n;
+            document.getElementById("bHp").style.width=hp;document.getElementById("bHpMobile").style.width=hp;
+            document.getElementById("bInfo").textContent=info;document.getElementById("bInfoMobile").textContent=info;
+            // Update ARIA
+            var bar=document.getElementById("bHp");if(bar)bar.parentElement.setAttribute("aria-valuenow",Math.round(S.boss.hp));
+            var barM=document.getElementById("bHpMobile");if(barM)barM.parentElement.setAttribute("aria-valuenow",Math.round(S.boss.hp));
+        }
+        function rPet(){
+            ["petEmoji","petEmojiMobile"].forEach(function(id){var e=document.getElementById(id);if(e)e.textContent=S.pet.e;});
+            ["petName","petNameMobile"].forEach(function(id){var e=document.getElementById(id);if(e)e.textContent=S.pet.n;});
+            ["petLvl","petLvlMobile"].forEach(function(id){var e=document.getElementById(id);if(e)e.textContent="Ур. "+S.pet.l;});
+        }
+        function rAch(){
+            var g="";for(var i=0;i<ACHS.length;i++){var a=ACHS[i];var u=a.c(S);if(u&&!S.achs[a.id]){S.achs[a.id]=true;save();}g+="<div class=\"ach "+(u?"unlocked":"locked")+"\" role=\"button\" tabindex=\"0\"><div class=\"ai\">"+a.i+"</div><div class=\"an\">"+a.n+"</div></div>";}
+            ["achGrid","achGridDesktop"].forEach(function(id){var e=document.getElementById(id);if(e)e.innerHTML=g;});
+        }
+        function rToday(){
+            var d=new Date();var days=['Вс','Пн','Вт','Ср','Чт','Пт','Сб'];var months=['янв','фев','мар','апр','мая','июн','июл','авг','сен','окт','ноя','дек'];var today=days[d.getDay()]+', '+d.getDate()+' '+months[d.getMonth()];var pending=S.tasks.filter(function(t){return!t.done&&(t.type==='daily'||t.type==='todo');}).length;var completed=S.tasks.filter(function(t){return t.done;}).length;var html='<b>'+today+'</b><br>⏳ Задач: <span style="color:var(--accent)">'+pending+'</span> | ✅ Выполнено: <span style="color:var(--green)">'+completed+'</span>';["todayWidgetMobile","todayWidgetDesktop"].forEach(function(id){var e=document.getElementById(id);if(e)e.innerHTML=html;});
+        }
+        function applyTheme(){
+            document.documentElement.setAttribute("data-theme",S.theme);
+            var desktopBtn=document.getElementById("themeBtn");if(desktopBtn)desktopBtn.textContent=S.theme==="dark"?"🌞":"🌙";
+            var dT=document.getElementById("themeToggleDesktop");if(dT)dT.classList.toggle("active",S.theme==="dark");
+            var mT=document.getElementById("themeToggleMobile");if(mT)mT.classList.toggle("active",S.theme==="dark");
+        }
+
+        // Desktop Modals
+        function openModal(id){document.getElementById(id).classList.add("active");}
+        function closeModal(id){document.getElementById(id).classList.remove("active");}
+        document.querySelectorAll(".modal-ov").forEach(function(ov){ov.addEventListener("click",function(e){if(e.target===ov)ov.classList.remove("active");});});
+
+        // Mobile Sheets
+        function openSheet(id){document.getElementById(id).classList.add("active");document.body.style.overflow="hidden";}
+        function closeSheet(id){document.getElementById(id).classList.remove("active");document.body.style.overflow="";setTimeout(function(){var s=document.getElementById(id).querySelector(".sheet");if(s)s.style.animation="none";setTimeout(function(){var sh=document.getElementById(id).querySelector(".sheet");if(sh)sh.style.animation="";},50);},300);}
+        document.querySelectorAll(".sheet-ov").forEach(function(ov){ov.addEventListener("click",function(e){if(e.target===ov)closeSheet(ov.id);});});
+
+        // Task Modal (Unified)
+        function openCreate(){editMode=false;editId=null;
+            if(isMobile()){
+                document.getElementById("mTaskTitleMobile").textContent={habits:"🔄 Новая привычка",dailies:"📅 Ежедневная",todos:"📝 Задача",rewards:"🎁 Награда"}[tab]||"✨ Задача";
+                document.getElementById("rewardCostBoxMobile").style.display=tab==="rewards"?"block":"none";
+                document.getElementById("tNameMobile").value="";document.getElementById("tDescMobile").value="";document.getElementById("tDeadMobile").value="";document.getElementById("tCostMobile").value="";
+                document.querySelectorAll("#mTaskMobile .d-btn").forEach(function(b){b.classList.remove("active");});document.querySelector("#mTaskMobile .d-btn[data-diff=\"easy\"]").classList.add("active");
+                openSheet("mTaskMobile");setTimeout(function(){document.getElementById("tNameMobile").focus();},300);
+            } else {
+                document.getElementById("mTaskTitleDesktop").textContent={habits:"🔄 Новая привычка",dailies:"📅 Ежедневная",todos:"📝 Задача",rewards:"🎁 Награда"}[tab]||"✨ Задача";
+                document.getElementById("rewardCostBoxDesktop").style.display=tab==="rewards"?"block":"none";
+                document.getElementById("tNameDesktop").value="";document.getElementById("tDescDesktop").value="";document.getElementById("tDeadDesktop").value="";document.getElementById("tCostDesktop").value="";
+                document.querySelectorAll("#mTaskDesktop .d-btn").forEach(function(b){b.classList.remove("active");});document.querySelector("#mTaskDesktop .d-btn[data-diff=\"easy\"]").classList.add("active");
+                openModal("mTaskDesktop");setTimeout(function(){document.getElementById("tNameDesktop").focus();},100);
+            }
+        }
+        function openEdit(id){
+            var t=null;for(var i=0;i<S.tasks.length;i++)if(S.tasks[i].id===id){t=S.tasks[i];break;}if(!t)return;editMode=true;editId=id;
+            if(isMobile()){
+                document.getElementById("mTaskTitleMobile").textContent="✏️ Редактировать";
+                document.getElementById("rewardCostBoxMobile").style.display=t.type==="reward"?"block":"none";
+                document.getElementById("tNameMobile").value=t.name;document.getElementById("tDescMobile").value=t.desc;document.getElementById("tCatMobile").value=t.cat;document.getElementById("tDeadMobile").value=t.dead;document.getElementById("tCostMobile").value=t.cost;
+                editDiff=t.diff;document.querySelectorAll("#mTaskMobile .d-btn").forEach(function(b){b.classList.remove("active");if(b.getAttribute("data-diff")===editDiff)b.classList.add("active");});
+                openSheet("mTaskMobile");
+            } else {
+                document.getElementById("mTaskTitleDesktop").textContent="✏️ Редактировать";
+                document.getElementById("rewardCostBoxDesktop").style.display=t.type==="reward"?"block":"none";
+                document.getElementById("tNameDesktop").value=t.name;document.getElementById("tDescDesktop").value=t.desc;document.getElementById("tCatDesktop").value=t.cat;document.getElementById("tDeadDesktop").value=t.dead;document.getElementById("tCostDesktop").value=t.cost;
+                editDiff=t.diff;document.querySelectorAll("#mTaskDesktop .d-btn").forEach(function(b){b.classList.remove("active");if(b.getAttribute("data-diff")===editDiff)b.classList.add("active");});
+                openModal("mTaskDesktop");
+            }
+        }
+        function saveTask(){
+            var suf=isMobile()?"Mobile":"Desktop";
+            var n=document.getElementById("tName"+suf).value.trim();if(!n){snd("err");toast("❌ Введите название!","error");return;}
+            var d=document.getElementById("tDesc"+suf).value.trim();var c=document.getElementById("tCat"+suf).value;var dl=document.getElementById("tDead"+suf).value;var co=tab==="rewards"?(parseInt(document.getElementById("tCost"+suf).value)||10):0;
+            var tm={habits:"habit",dailies:"daily",todos:"todo",rewards:"reward"};var ty=tm[tab]||"todo";
+            if(editMode){updTask(editId,{name:n,desc:d,cat:c,dead:dl,diff:editDiff,cost:co});toast("✏️ Обновлено","success");}else{addTask(ty,n,d,c,dl,editDiff,co);toast("✨ «"+n+"» создано!","success");}
+            snd("ok");if(isMobile())closeSheet("mTaskMobile");else closeModal("mTaskDesktop");render();
+        }
+        // Mobile task events
+        document.getElementById("fabAdd").addEventListener("click",openCreate);
+        document.getElementById("addBtnDesktop").addEventListener("click",openCreate);
+        document.getElementById("mTaskCancelMobile").addEventListener("click",function(){closeSheet("mTaskMobile");});
+        document.getElementById("mTaskCancelDesktop").addEventListener("click",function(){closeModal("mTaskDesktop");});
+        document.getElementById("mTaskSaveMobile").addEventListener("click",saveTask);
+        document.getElementById("mTaskSaveDesktop").addEventListener("click",saveTask);
+        ["#mTaskMobile","#mTaskDesktop"].forEach(function(sel){document.querySelectorAll(sel+" .d-btn").forEach(function(b){b.addEventListener("click",function(){document.querySelectorAll(sel+" .d-btn").forEach(function(x){x.classList.remove("active");});this.classList.add("active");editDiff=this.getAttribute("data-diff");});});});
+
+        // Shop
+        function openShop(){
+            var suf=isMobile()?"Mobile":"Desktop";
+            var g=document.getElementById("shopGrid"+suf);var html="";SHOP.forEach(function(it){var owned=S.purchased.indexOf(it.id)!==-1;html+="<div class=\"shop-item"+(owned?" owned":"")+"\" data-id=\""+it.id+"\" role=\"button\" tabindex=\"0\"><div class=\"si-icon\">"+it.i+"</div><div class=\"si-name\">"+it.n+"</div><div class=\"si-eff\">"+it.d+"</div><div class=\"si-cost\">"+(owned?"✅":it.c+" 💰")+"</div></div>";});g.innerHTML=html;
+            if(isMobile())openSheet("mShopMobile");else openModal("mShopDesktop");
+        }
+        document.getElementById("shopBtn").addEventListener("click",openShop);
+        ["mShopMobile","mShopDesktop"].forEach(function(id){document.getElementById(id).addEventListener("click",function(e){var item=e.target.closest(".shop-item");if(!item||item.classList.contains("owned"))return;var item_id=item.getAttribute("data-id");var it=SHOP.find(function(x){return x.id===item_id;});if(S.player.gold>=it.c){S.player.gold-=it.c;S.purchased.push(id);save();render();snd("coin");toast("🛡️ "+it.n,"gold-toast");if(isMobile())closeSheet("mShopMobile");else closeModal("mShopDesktop");}else{snd("err");toast("❌ Не хватает "+(it.c-S.player.gold)+" 💰","error");}});});
+
+        // Avatar
+        function openAvatar(){
+            var suf=isMobile()?"Mobile":"Desktop";var g=document.getElementById("avatarGrid"+suf);var html="";AVATARS.forEach(function(a){html+="<div class=\"av-item"+(a===S.player.av?" selected":"")+"\" data-av=\""+a+"\" role=\"radio\" aria-checked=\""+(a===S.player.av?"true":"false")+"\" tabindex=\"0\">"+a+"</div>";});g.innerHTML=html;
+            if(isMobile())openSheet("mAvatarMobile");else openModal("mAvatarDesktop");
+        }
+        document.getElementById("avatarBox").addEventListener("click",openAvatar);
+        ["mAvatarMobile","mAvatarDesktop"].forEach(function(id){document.getElementById(id).addEventListener("click",function(e){var item=e.target.closest(".av-item");if(!item)return;S.player.av=item.getAttribute("data-av");save();render();if(isMobile())closeSheet("mAvatarMobile");else closeModal("mAvatarDesktop");});});
+
+        // Settings
+        document.getElementById("settingsBtnMobile").addEventListener("click",function(){openSheet("mSettingsMobile");});
+        function toggleThemeDesktop(){S.theme=S.theme==="dark"?"light":"dark";applyTheme();save();}
+        function toggleThemeMobile(){S.theme=S.theme==="dark"?"light":"dark";applyTheme();save();}
+        function toggleSound(){soundEnabled=!soundEnabled;S.sound=soundEnabled;save();var icons=["🔊","🔇"];var t=soundEnabled?icons[0]:icons[1];["soundSettingDesktop","soundSettingMobile"].forEach(function(id){var e=document.getElementById(id);if(e)e.classList.toggle("active",soundEnabled);});document.getElementById("soundToggleMobile").textContent=t;var desktopSoundBtn=document.getElementById("soundToggleDesktop");if(desktopSoundBtn)desktopSoundBtn.textContent=t;toast(soundEnabled?"🔊 Включён":"🔇 Выключён","success");}
+        soundEnabled=S.sound!==false;
+        setTimeout(function(){var icons=["🔊","🔇"];var t=soundEnabled?icons[0]:icons[1];["soundSettingDesktop","soundSettingMobile"].forEach(function(id){var e=document.getElementById(id);if(e)e.classList.toggle("active",soundEnabled);});var m=document.getElementById("soundToggleMobile");if(m)m.textContent=t;var d=document.getElementById("soundToggleDesktop");if(d)d.textContent=t;},0);
+
+        // Export/Import
+        function exportData(){var d="data:text/json;charset=utf-8,"+encodeURIComponent(JSON.stringify(S));var a=document.createElement("a");a.href=d;a.download="habitica_backup.json";a.click();toast("💾 Сохранено","success");}
+        function importData(){document.getElementById("impFile2").click();document.getElementById("impFile2").style.display="none";}
+        document.getElementById("impFile2").addEventListener("change",function(e){var f=e.target.files[0];if(!f)return;var r=new FileReader();r.onload=function(ev){try{S=JSON.parse(ev.target.result);save();render();snd("ok");toast("📥 Восстановлено!","success");}catch(err){snd("err");toast("❌ Ошибка файла","error");}};r.readAsText(f);e.target.value="";});
+        function exportCSV(){var csv="Название,Тип,Категория,Сложность,Выполнено,Серия,Дедлайн\n";S.tasks.forEach(function(t){csv+="\""+t.name+"\",\""+t.type+"\",\""+t.cat+"\",\""+t.diff+"\",\""+(t.done?"Да":"Нет")+"\",\""+t.streak+"\",\""+t.dead+"\"\n";});var b=new Blob([csv],{type:"text/csv;charset=utf-8;"});var a=document.createElement("a");a.href=URL.createObjectURL(b);a.download="habitica.csv";a.click();toast("📊 CSV сохранён","success");}
+
+        // Tabs
+        document.querySelectorAll(".m-tab-btn, .tab-btn").forEach(function(b){b.addEventListener("click",function(){
+            var newTab=this.getAttribute("data-tab");
+            document.querySelectorAll(".m-tab-btn, .tab-btn").forEach(function(x){x.classList.remove("active");});
+            document.querySelectorAll("[data-tab=\""+newTab+"\"]").forEach(function(x){x.classList.add("active");});
+            tab=newTab;rTasks();
+        });});
+        document.getElementById("searchInput").addEventListener("input",function(){S.search=this.value;rTasks();});
+        document.querySelectorAll(".filter-btn").forEach(function(b){b.addEventListener("click",function(){
+            document.querySelectorAll(".filter-btn").forEach(function(x){x.classList.remove("active");});this.classList.add("active");S.filter=this.getAttribute("data-filter");rTasks();});});
+
+        // Task click
+        document.getElementById("taskList").addEventListener("click",function(e){
+            var item=e.target.closest(".task-item");if(!item)return;
+            var id=item.getAttribute("data-id");
+            var act=e.target.closest(".t-act");if(act)return; // handled by onclick
+            if(!item.classList.contains("swiped"))toggleTask(id);
+        });
+
+        // Desktop header buttons
+        document.getElementById("undoBtn").addEventListener("click",undoAction);
+        document.getElementById("themeBtn").addEventListener("click",function(){S.theme=S.theme==="dark"?"light":"dark";applyTheme();save();});
+        document.getElementById("csvBtn").addEventListener("click",exportCSV);
+        document.getElementById("expBtn").addEventListener("click",exportData);
+        document.getElementById("impBtn").addEventListener("click",function(){document.getElementById("impFile").click();});
+        document.getElementById("impFile").addEventListener("change",function(e){var f=e.target.files[0];if(!f)return;var r=new FileReader();r.onload=function(ev){try{S=JSON.parse(ev.target.result);save();render();snd("ok");toast("📥 Восстановлено!","success");}catch(err){snd("err");toast("❌ Ошибка файла","error");}};r.readAsText(f);e.target.value="";});
+
+        // Pomodoro
+        function fmt(s){var m=Math.floor(s/60);var sec=s%60;return(m<10?"0":"")+m+":"+(sec<10?"0":"")+sec;}
+        function updateTimerDisplays(){var t=fmt(S.pomo.rem);["timerDisp","timerDispDesktop"].forEach(function(id){var e=document.getElementById(id);if(e)e.textContent=t;});}
+        function startPomo(){if(S.pomo.run)return;S.pomo.run=true;["tStart","tStartDesktop"].forEach(function(id){var e=document.getElementById(id);if(e)e.style.display="none";});["tPause","tPauseDesktop"].forEach(function(id){var e=document.getElementById(id);if(e)e.style.display="inline-block";});timerInt=setInterval(function(){S.pomo.rem--;updateTimerDisplays();if(S.pomo.rem%60===0)tone(800,0.05,"square");if(S.pomo.rem<=0){clearInterval(timerInt);S.pomo.run=false;["tStart","tStartDesktop"].forEach(function(id){var e=document.getElementById(id);if(e)e.style.display="inline-block";});["tPause","tPauseDesktop"].forEach(function(id){var e=document.getElementById(id);if(e)e.style.display="none";});S.pomo.rem=S.pomo.dur*60;updateTimerDisplays();snd("lvl");toast("⏱️ Помодоро готов! +15 XP +10💰","xp");addXp(15);S.player.gold+=10;heal(3);save();render();}},1000);}
+        function pausePomo(){clearInterval(timerInt);S.pomo.run=false;["tStart","tStartDesktop"].forEach(function(id){var e=document.getElementById(id);if(e)e.style.display="inline-block";});["tPause","tPauseDesktop"].forEach(function(id){var e=document.getElementById(id);if(e)e.style.display="none";});}
+        function resetPomo(){clearInterval(timerInt);S.pomo.run=false;["tStart","tStartDesktop"].forEach(function(id){var e=document.getElementById(id);if(e)e.style.display="inline-block";});["tPause","tPauseDesktop"].forEach(function(id){var e=document.getElementById(id);if(e)e.style.display="none";});S.pomo.rem=S.pomo.dur*60;updateTimerDisplays();}
+        ["tStart","tStartDesktop"].forEach(function(id){var e=document.getElementById(id);if(e)e.addEventListener("click",startPomo);});
+        ["tPause","tPauseDesktop"].forEach(function(id){var e=document.getElementById(id);if(e)e.addEventListener("click",pausePomo);});
+        ["tReset","tResetDesktop"].forEach(function(id){var e=document.getElementById(id);if(e)e.addEventListener("click",resetPomo);});
+
+        // Drag & Drop (Desktop)
+        function initDragDrop(){if(isMobile())return;var list=document.getElementById("taskList");
+            list.addEventListener("dragstart",function(e){var item=e.target.closest(".task-item");if(!item)return;dragId=item.getAttribute("data-id");item.classList.add("dragging");e.dataTransfer.effectAllowed="move";});
+            list.addEventListener("dragover",function(e){e.preventDefault();e.dataTransfer.dropEffect="move";});
+            list.addEventListener("drop",function(e){e.preventDefault();var target=e.target.closest(".task-item");if(!target||!dragId)return;var fromIdx=-1,toIdx=-1;for(var i=0;i<S.tasks.length;i++){if(S.tasks[i].id===dragId)fromIdx=i;if(S.tasks[i].id===target.getAttribute("data-id"))toIdx=i;}if(fromIdx!==-1&&toIdx!==-1&&fromIdx!==toIdx){pushUndo();var moved=S.tasks.splice(fromIdx,1)[0];S.tasks.splice(toIdx,0,moved);save();render();}dragId=null;document.querySelectorAll(".dragging").forEach(function(el){el.classList.remove("dragging");});});
+            list.addEventListener("dragend",function(){dragId=null;document.querySelectorAll(".dragging").forEach(function(el){el.classList.remove("dragging");});});
+        }
+
+        // Swipe (Mobile)
+        function initSwipe(){if(!isMobile())return;var items=document.querySelectorAll(".task-item");items.forEach(function(item){var startX=0,currentX=0,isSwiping=false;item.addEventListener("touchstart",function(e){startX=e.touches[0].clientX;isSwiping=true;item.classList.remove("swiped");},{passive:true});item.addEventListener("touchmove",function(e){if(!isSwiping)return;currentX=e.touches[0].clientX;var diff=currentX-startX;if(diff<-20&&diff>-100)item.style.transform="translateX("+diff+"px)";},{passive:true});item.addEventListener("touchend",function(){if(!isSwiping)return;isSwiping=false;var diff=currentX-startX;if(diff<-80)item.classList.add("swiped");else item.classList.remove("swiped");item.style.transform="";startX=0;currentX=0;});});}
+
+        // Keyboard
+        document.addEventListener("keydown",function(e){if(e.key==="Escape"){document.querySelectorAll(".modal-ov").forEach(function(m){m.classList.remove("active");});}if(e.ctrlKey&&e.key==="z"){e.preventDefault();undoAction();}});
+
+        // Particles & Toast
+        function toast(msg,type){type=type||"success";var c=document.getElementById("toastC");var t=document.createElement("div");t.className="toast "+type;t.innerHTML=msg;c.appendChild(t);setTimeout(function(){t.remove();},3000);}
+        function spawn(emoji){for(var i=0;i<5;i++){(function(idx){setTimeout(function(){var p=document.createElement("div");p.className="particle";p.textContent=emoji;p.style.left=(Math.random()*60+20)+"vw";p.style.top=(Math.random()*40+40)+"vh";document.body.appendChild(p);setTimeout(function(){p.remove();},800);},idx*80);})(i);}}
+        function confetti(){var colors=['#ff2a6d','#9d50ff','#00f5a0','#6ec1ff','#ffd166','#ff8fab'];for(var i=0;i<40;i++){(function(idx){setTimeout(function(){var c=document.createElement("div");c.className="confetti";c.style.left=(Math.random()*100)+"vw";c.style.backgroundColor=colors[Math.floor(Math.random()*colors.length)];c.style.borderRadius=Math.random()>0.5?"50%":"3px";c.style.animationDuration=(1+Math.random()*0.8)+"s";document.body.appendChild(c);setTimeout(function(){c.remove();},2000);},idx*25);})(i);}}
+
+        // Window resize handler
+        window.addEventListener("resize",function(){rHeat();});
+
+        // Init
+        if(!S.theme){var prefersDark=window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches;S.theme=prefersDark?'dark':'light';save();}
+        checkDaily();updCls();updPet();updateTimerDisplays();render();
+        if(!S.tasks.length){addTask("habit","Медитация 10 мин","Утро","Здоровье","","easy",0);addTask("habit","Чтение 30 мин","Книги","Учёба","","medium",0);addTask("daily","Зарядка","15 мин","Спорт","","medium",0);addTask("daily","2л воды","Норма","Здоровье","","easy",0);addTask("todo","План на неделю","Воскресенье","Работа","","hard",0);addTask("reward","🎮 1 час игр","Награда","Личное","","easy",30);addTask("reward","🍕 Вкусная еда","Побалуй себя","Личное","","easy",50);save();render();}
+    </script>
+</body>
+</html>
